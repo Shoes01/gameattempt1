@@ -5,13 +5,13 @@ def render_all(con, entities, game_map, screen_width, screen_height, colors):
     # Draw all the tiles in the game map
     for y in range(game_map.height):
         for x in range(game_map.width):
-            wall = game_map.tiles[x][y].block_sight
-
-            if wall:
-                libtcod.console_set_char_background(con, x, y, colors.get('dark_wall'), libtcod.BKGND_SET)
-            else:
-                libtcod.console_set_char_background(con, x, y, colors.get('dark_ground'), libtcod.BKGND_SET)
-
+            tile_type = game_map.tiles[x][y].tile_type
+            
+            if tile_type == 'dirt':
+                libtcod.console_set_char_background(con, x, y, colors.get('dark_dirt'), libtcod.BKGND_SET)
+            else: #Assume everything else is grass
+                libtcod.console_set_char_background(con, x, y, colors.get('dark_grass'), libtcod.BKGND_SET)
+            
     # Draw all entities in the list
     for entity in entities:
         draw_entity(con, entity)
