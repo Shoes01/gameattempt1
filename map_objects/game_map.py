@@ -1,7 +1,11 @@
 import libtcodpy as libtcod
 from random import randint
 
+from components.ai import BasicMonster
+from components.fighter import Fighter
+
 from entity import Entity
+
 from map_objects.tile import Tile
 
 
@@ -55,9 +59,13 @@ class GameMap:
                 if spawn_chance > 99:
                     #a monster spawns here!
                     if self.tiles[x][y].tile_type == 'dirt':
-                        monster = Entity(x, y, 'g', libtcod.light_grey, 'Geodude', blocks=True)
+                        fighter_component = Fighter(hp=3, defense=3, power=1)
+                        ai_component = BasicMonster()
+                        monster = Entity(x, y, 'g', libtcod.light_grey, 'Geodude', blocks=True, fighter=fighter_component, ai=ai_component)
                     elif self.tiles[x][y].tile_type == 'grass':
-                        monster = Entity(x, y, 'c', libtcod.light_green, 'Caterpie', blocks=True)
+                        fighter_component = Fighter(hp=2, defense=0, power=0)
+                        ai_component = BasicMonster()
+                        monster = Entity(x, y, 'c', libtcod.light_green, 'Caterpie', blocks=True, fighter=fighter_component, ai=ai_component)
                     
                     entities.append(monster)
 
