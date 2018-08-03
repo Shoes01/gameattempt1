@@ -1,5 +1,7 @@
+import libtcodpy as libtcod
 from random import randint
 
+from entity import Entity
 from map_objects.tile import Tile
 
 
@@ -24,7 +26,7 @@ class GameMap:
 
         return tiles
 
-    def make_map(self, map_width, map_height, player):
+    def make_map(self, map_width, map_height, player, entities):
         """
         At first, the road will have a 50% chance to be E-W or N-S. 
         """
@@ -36,12 +38,28 @@ class GameMap:
                 if chance >= 50 and y > map_height/2 - 3 + 2 and y < map_height/2 + 3 + 2: #Plus two to offset the fact that map height is not console height
                     self.tiles[x][y].tile_type = 'dirt'
                     player.x = 2
-                    #player.y doesn't change
+                    player.y = int(map_height/2 + 2)
                 #vertical road
                 elif chance < 50 and x > map_width/2 - 3 and x < map_width/2 + 3:
                     self.tiles[x][y].tile_type = 'dirt'
-                    #player.x doesn't change
+                    player.x = int(map_width/2)
                     player.y = 2
+        
+        self.place_entities(map_height, map_width, entities)
+
+    def place_entities(self, map_height, map_width, entities):
+        #place monsters according to the tile they are found in
+        for y in range(map_height):
+            for x in range(map_width):
+                spawn_chance = randint(0, 100)
+                if spawn_chance > 99:
+                    #a monster spawns here!
+                    if self.tiles[x][y].tile_type == 'dirt':
+                        monster = Entity(x, y, 'g', libtcod.light_grey, 'Geodude', blocks=True)
+                    elif self.tiles[x][y].tile_type == 'grass':
+                        monster = Entity(x, y, 'c', libtcod.light_green, 'Caterpie', blocks=True)
+                    
+                    entities.append(monster)
 
     def is_blocked(self, x, y):
         if self.tiles[x][y].blocked:
