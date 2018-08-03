@@ -3,10 +3,9 @@ from random import randint
 
 from components.ai import BasicMonster
 from components.fighter import Fighter
-
 from entity import Entity
-
 from map_objects.tile import Tile
+from render_functions import RenderOrder
 
 
 class GameMap:
@@ -61,11 +60,11 @@ class GameMap:
                     if self.tiles[x][y].tile_type == 'dirt':
                         fighter_component = Fighter(hp=3, defense=3, power=1)
                         ai_component = BasicMonster()
-                        monster = Entity(x, y, 'g', libtcod.light_grey, 'Geodude', blocks=True, fighter=fighter_component, ai=ai_component)
+                        monster = Entity(x, y, 'g', libtcod.light_grey, 'Geodude', blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
                     elif self.tiles[x][y].tile_type == 'grass':
                         fighter_component = Fighter(hp=2, defense=0, power=0)
                         ai_component = BasicMonster()
-                        monster = Entity(x, y, 'c', libtcod.light_green, 'Caterpie', blocks=True, fighter=fighter_component, ai=ai_component)
+                        monster = Entity(x, y, 'c', libtcod.light_green, 'Caterpie', blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
                     
                     entities.append(monster)
 
