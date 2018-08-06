@@ -5,6 +5,7 @@ from components.ai import BasicMonster
 from components.fighter import Fighter
 from entity import Entity
 from map_objects.tile import Tile
+from priority_queue import PriorityQueue
 from render_functions import RenderOrder
 
 
@@ -29,7 +30,7 @@ class GameMap:
 
         return tiles
 
-    def make_map(self, map_width, map_height, player, entities):
+    def make_map(self, map_width, map_height, player, entities, ID, priority_queue):
         """
         At first, the road will have a 50% chance to be E-W or N-S. 
         """
@@ -48,9 +49,9 @@ class GameMap:
                     player.x = int(map_width/2)
                     player.y = 2
         
-        self.place_entities(map_height, map_width, entities)
+        self.place_entities(map_height, map_width, entities, ID, priority_queue)
 
-    def place_entities(self, map_height, map_width, entities):
+    def place_entities(self, map_height, map_width, entities, ID, priority_queue):
         #place monsters according to the tile they are found in
         for y in range(map_height):
             for x in range(map_width):
@@ -58,13 +59,17 @@ class GameMap:
                 if spawn_chance > 99:
                     #a monster spawns here!
                     if self.tiles[x][y].tile_type == 'dirt':
-                        fighter_component = Fighter(hp=3, defense=3, power=1)
+                        fighter_component = Fighter(hp=3, defense=3, power=1, speed=100)
                         ai_component = BasicMonster()
-                        monster = Entity(x, y, 'g', libtcod.light_grey, 'Geodude', blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
+                        monster = Entity(x, y, 'g', libtcod.light_grey, 'Geodude', ID, blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
+                        ID += 1
+                        priority_queue.put(action_points=monster.fighter.speed, ID=monster.ID)
                     elif self.tiles[x][y].tile_type == 'grass':
-                        fighter_component = Fighter(hp=2, defense=0, power=0)
+                        fighter_component = Fighter(hp=2, defense=0, power=0, speed=60)
                         ai_component = BasicMonster()
-                        monster = Entity(x, y, 'c', libtcod.light_green, 'Caterpie', blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
+                        monster = Entity(x, y, 'c', libtcod.light_green, 'Caterpie', ID, blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
+                        ID += 1
+                        priority_queue.put(action_points=monster.fighter.speed, ID=monster.ID)
                     
                     entities.append(monster)
 

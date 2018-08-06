@@ -1,23 +1,30 @@
 import libtcodpy as libtcod
 
+from components.ai import BasicMonster
 from components.fighter import Fighter
 from death_functions import kill_monster, kill_player
 from entity import Entity, get_blocking_entities_at_location
 from fov_functions import initialize_fov, recompute_fov
 from game_states import GameStates
 from input_handlers import handle_keys
-from render_functions import clear_all, render_all, RenderOrder
 from map_objects.game_map import GameMap
+from priority_queue import PriorityQueue
+from render_functions import clear_all, render_all, RenderOrder
 
 def main():
     screen_width = 80
     screen_height = 50
     map_width = 80
     map_height = 45
+    ID = 1 #0 belong to the player
+    
+    libtcod.sys_set_fps(20)
 
     fov_algorithm = 0
     fov_light_walls = True
     fov_radius = 10
+
+    priority_queue = PriorityQueue() #start a queue
 
     colors = {
         'dark_wall': libtcod.Color(0, 0, 100),
@@ -29,7 +36,8 @@ def main():
     }
 
     fighter_component = Fighter(hp=30, defense=2, power=5)
-    player = Entity(0, 0, '@', libtcod.red, 'Red', blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component)
+    player = Entity(0, 0, '@', libtcod.red, 'Red', 0, blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component)
+    priority_queue.put(action_points=player.fighter.speed, ID=player.ID)
     entities = [player]
 
     libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
@@ -39,7 +47,7 @@ def main():
     con = libtcod.console_new(screen_width, screen_height)
 
     game_map = GameMap(map_width, map_height)
-    game_map.make_map(map_width, map_height, player, entities)
+    game_map.make_map(map_width, map_height, player, entities, ID, priority_queue)
 
     fov_recompute = True
 
@@ -48,10 +56,11 @@ def main():
     key = libtcod.Key()
     mouse = libtcod.Mouse()
 
-    game_state = GameStates.PLAYERS_TURN
-
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
+
+        priority_queue.tick()
+        print(priority_queue.ticker)
 
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
