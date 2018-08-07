@@ -18,6 +18,8 @@ def main():
     map_height = 45
     ID = 1 #0 belong to the player
 
+    player_turn_count = 0
+
     fov_algorithm = 0
     fov_light_walls = True
     fov_radius = 10
@@ -59,8 +61,6 @@ def main():
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
 
-        priority_queue.tick()
-
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
 
@@ -81,10 +81,12 @@ def main():
         player_turn_results = []
         enemy = None #if it's not the player's turn, it's this enemy's turn
 
+        
+
         if not priority_queue.empty() and not game_state == GameStates.PLAYERS_TURN:
-            queue_ID = priority_queue.get_ID()
+            queue_ID = priority_queue.get_ID() #this removes the topmost ID from the queue
             for entity in entities:
-                if  queue_ID == entity.ID:
+                if queue_ID == entity.ID and not entity.is_dead():
                     if entity.ai == None: #it's the player
                         game_state = GameStates.PLAYERS_TURN
                         break
@@ -111,6 +113,8 @@ def main():
                     
                     fov_recompute = True
 
+                print('Player Turn Count: ', player_turn_count)
+                player_turn_count += 1
                 priority_queue.put(player.fighter.speed, player.ID)
                 game_state = GameStates.NEUTRAL_TURN
 
@@ -125,15 +129,13 @@ def main():
             dead_entity = player_turn_result.get('dead')
 
             if message:
-                print(message)
+                print(message, 'A')
 
             if dead_entity:
                 if dead_entity == player:
                     message, game_state = kill_player(dead_entity)
                 else:
                     message = kill_monster(dead_entity)
-
-                print(message)
 
         if game_state == GameStates.ENEMY_TURN and enemy:
             enemy_turn_results = enemy.ai.take_turn(player, fov_map, game_map, entities)
@@ -143,15 +145,15 @@ def main():
                 dead_entity = enemy_turn_result.get('dead')
 
                 if message:
-                    print(message)
+                    print(message, 'B')
 
                 if dead_entity:
                     if dead_entity == player:
                         message, game_state = kill_player(dead_entity)
                     else:
-                        message = kill_monster(dead_entity)
+                        message = kill_monster(dead_entity)                        
 
-                    print(message)
+                    print(message, 'C')
 
                     if game_state == GameStates.PLAYER_DEAD:
                         break
@@ -159,7 +161,7 @@ def main():
             if game_state == GameStates.PLAYER_DEAD:
                 break
 
-            else:
+            elif not enemy.ai == None:
                 priority_queue.put(enemy.fighter.speed, enemy.ID)
                 game_state = GameStates.NEUTRAL_TURN
 

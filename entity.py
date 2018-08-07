@@ -25,6 +25,12 @@ class Entity:
         if self.ai:
             self.ai.owner = self
 
+    def is_dead(self):
+        if self.render_order == RenderOrder.CORPSE:
+            return True
+        else:
+            return False
+
     def move(self, dx, dy):
         # Move the entity by a given amount
         self.x += dx

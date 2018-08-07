@@ -1,5 +1,5 @@
 class Fighter:
-    def __init__(self, hp, defense, power, speed=20):
+    def __init__(self, hp, defense, power, speed=200):
         self.max_hp = hp
         self.hp = hp
         self.defense = defense
@@ -26,7 +26,6 @@ class Fighter:
                 self.owner.name.capitalize(), target.name, str(damage))})
             results.extend(target.fighter.take_damage(damage))
         else:
-            print('{0} attacks {1} but does no damage.'.format(self.owner.name.capitalize(), target.name))
             results.append({'message': '{0} attacks {1} but does no damage.'.format(
                 self.owner.name.capitalize(), target.name)})
 
