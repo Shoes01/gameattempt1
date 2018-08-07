@@ -18,8 +18,6 @@ def main():
     map_height = 45
     ID = 1 #0 belong to the player
 
-    player_turn_count = 0
-
     fov_algorithm = 0
     fov_light_walls = True
     fov_radius = 10
@@ -81,8 +79,6 @@ def main():
         player_turn_results = []
         enemy = None #if it's not the player's turn, it's this enemy's turn
 
-        
-
         if not priority_queue.empty() and not game_state == GameStates.PLAYERS_TURN:
             queue_ID = priority_queue.get_ID() #this removes the topmost ID from the queue
             for entity in entities:
@@ -113,8 +109,6 @@ def main():
                     
                     fov_recompute = True
 
-                print('Player Turn Count: ', player_turn_count)
-                player_turn_count += 1
                 priority_queue.put(player.fighter.speed, player.ID)
                 game_state = GameStates.NEUTRAL_TURN
 
@@ -129,7 +123,7 @@ def main():
             dead_entity = player_turn_result.get('dead')
 
             if message:
-                print(message, 'A')
+                print(message)
 
             if dead_entity:
                 if dead_entity == player:
@@ -145,7 +139,7 @@ def main():
                 dead_entity = enemy_turn_result.get('dead')
 
                 if message:
-                    print(message, 'B')
+                    print(message)
 
                 if dead_entity:
                     if dead_entity == player:
@@ -153,7 +147,7 @@ def main():
                     else:
                         message = kill_monster(dead_entity)                        
 
-                    print(message, 'C')
+                    print(message)
 
                     if game_state == GameStates.PLAYER_DEAD:
                         break
