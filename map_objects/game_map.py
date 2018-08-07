@@ -59,7 +59,7 @@ class GameMap:
                 if spawn_chance > 99:
                     #a monster spawns here!
                     if self.tiles[x][y].tile_type == 'dirt':
-                        fighter_component = Fighter(hp=3, defense=3, power=1, speed=100)
+                        fighter_component = Fighter(hp=3, defense=3, power=1, speed=10)
                         ai_component = BasicMonster()
                         monster = Entity(x, y, 'g', libtcod.light_grey, 'Geodude', ID, blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
                         ID += 1

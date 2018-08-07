@@ -26,6 +26,8 @@ def main():
 
     priority_queue = PriorityQueue() #start a queue
 
+    game_state = GameStates.NEUTRAL_TURN
+
     colors = {
         'dark_wall': libtcod.Color(0, 0, 100),
         'dark_ground': libtcod.Color(50, 50, 150),
@@ -36,7 +38,7 @@ def main():
     }
 
     fighter_component = Fighter(hp=30, defense=2, power=5)
-    player = Entity(0, 0, '@', libtcod.red, 'Red', 0, blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component)
+    player = Entity(0, 0, '@', libtcod.red, 'Red', ID=0, blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component)
     priority_queue.put(action_points=player.fighter.speed, ID=player.ID)
     entities = [player]
 
@@ -59,8 +61,8 @@ def main():
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
 
-        priority_queue.tick()
-        print(priority_queue.ticker)
+        if not game_state == GameStates.PLAYERS_TURN: #this pretty much pauses the game while it is the player's turn
+            priority_queue.tick()
 
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
@@ -80,6 +82,28 @@ def main():
         fullscreen = action.get('fullscreen')
 
         player_turn_results = []
+        enemy = None #if it's not the player's turn, it's this enemy's turn
+
+        print(priority_queue.ticker, ') AP: ', priority_queue.queue[0][0], ' ID: ', priority_queue.queue[0][1])
+
+        if not priority_queue.empty() and priority_queue.ticker == priority_queue.peek():
+            print('Looping.')
+            queue_ID = priority_queue.get_ID()
+            for entity in entities:
+                if  queue_ID == entity.ID:
+                    priority_queue.untick() #in case there are many entites with the same speed
+                    if entity.ai == None: #it's the player
+                        game_state = GameStates.PLAYERS_TURN
+                        break
+                    else:
+                        enemy = entity
+                        game_state = GameStates.ENEMY_TURN
+                        break
+            else:
+                game_state = GameStates.NEUTRAL_TURN
+
+        
+        print('GameState: ', game_state)
 
         if move and game_state == GameStates.PLAYERS_TURN:
             dx, dy = move
@@ -97,7 +121,8 @@ def main():
                     
                     fov_recompute = True
 
-                game_state = GameStates.ENEMY_TURN
+                priority_queue.put(player.fighter.speed, player.ID)
+                game_state = GameStates.NEUTRAL_TURN
 
         if exit:
             return True
@@ -120,34 +145,33 @@ def main():
 
                 print(message)
 
-        if game_state == GameStates.ENEMY_TURN:
-            for entity in entities:
-                if entity.ai:
-                    enemy_turn_results = entity.ai.take_turn(player, fov_map, game_map, entities)
+        if game_state == GameStates.ENEMY_TURN and enemy:
+            enemy_turn_results = enemy.ai.take_turn(player, fov_map, game_map, entities)
 
-                    for enemy_turn_result in enemy_turn_results:
-                        message = enemy_turn_result.get('message')
-                        dead_entity = enemy_turn_result.get('dead')
+            for enemy_turn_result in enemy_turn_results:
+                message = enemy_turn_result.get('message')
+                dead_entity = enemy_turn_result.get('dead')
 
-                        if message:
-                            print(message)
+                if message:
+                    print(message)
 
-                        if dead_entity:
-                            if dead_entity == player:
-                                message, game_state = kill_player(dead_entity)
-                            else:
-                                message = kill_monster(dead_entity)
+                if dead_entity:
+                    if dead_entity == player:
+                        message, game_state = kill_player(dead_entity)
+                    else:
+                        message = kill_monster(dead_entity)
 
-                            print(message)
-
-                            if game_state == GameStates.PLAYER_DEAD:
-                                break
+                    print(message)
 
                     if game_state == GameStates.PLAYER_DEAD:
                         break
 
+            if game_state == GameStates.PLAYER_DEAD:
+                break
+
             else:
-                game_state = GameStates.PLAYERS_TURN
+                priority_queue.put(enemy.fighter.speed, enemy.ID)
+                game_state = GameStates.NEUTRAL_TURN
 
 if __name__ == '__main__':
     main()
