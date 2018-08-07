@@ -17,8 +17,6 @@ def main():
     map_width = 80
     map_height = 45
     ID = 1 #0 belong to the player
-    
-    libtcod.sys_set_fps(20)
 
     fov_algorithm = 0
     fov_light_walls = True
@@ -61,8 +59,7 @@ def main():
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
 
-        if not game_state == GameStates.PLAYERS_TURN: #this pretty much pauses the game while it is the player's turn
-            priority_queue.tick()
+        priority_queue.tick()
 
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
@@ -84,14 +81,10 @@ def main():
         player_turn_results = []
         enemy = None #if it's not the player's turn, it's this enemy's turn
 
-        print(priority_queue.ticker, ') AP: ', priority_queue.queue[0][0], ' ID: ', priority_queue.queue[0][1])
-
-        if not priority_queue.empty() and priority_queue.ticker == priority_queue.peek():
-            print('Looping.')
+        if not priority_queue.empty() and not game_state == GameStates.PLAYERS_TURN:
             queue_ID = priority_queue.get_ID()
             for entity in entities:
                 if  queue_ID == entity.ID:
-                    priority_queue.untick() #in case there are many entites with the same speed
                     if entity.ai == None: #it's the player
                         game_state = GameStates.PLAYERS_TURN
                         break
@@ -101,9 +94,6 @@ def main():
                         break
             else:
                 game_state = GameStates.NEUTRAL_TURN
-
-        
-        print('GameState: ', game_state)
 
         if move and game_state == GameStates.PLAYERS_TURN:
             dx, dy = move

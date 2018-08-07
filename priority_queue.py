@@ -19,6 +19,7 @@ class PriorityQueue:
         return self.queue[0][0]
 
     def put(self, action_points, ID):
+        self.ticker += 1
         heapq.heappush(self.queue, (self.ticker + action_points, ID))
 
     def get_ID(self):
