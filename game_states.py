@@ -8,3 +8,4 @@ class GameStates(Enum):
     NEUTRAL_TURN = 4
     SHOW_INVENTORY = 5
     DROP_INVENTORY = 6
+    TARGETING = 7
