@@ -6,27 +6,78 @@ from entity import get_blocking_entities_at_location
 from fov_functions import initialize_fov, recompute_fov
 from game_messages import Message
 from game_states import GameStates
-from input_handlers import handle_keys, handle_mouse
+from input_handlers import handle_keys, handle_mouse, handle_main_menu
 from loader_functions.initialize_new_game import get_constants, get_game_variables
+from loader_functions.data_loaders import load_game, save_game
+from menus import main_menu, message_box
 from priority_queue import PriorityQueue
 from render_functions import clear_all, render_all
 
 def main():
     constants = get_constants()
 
-    ID = 1 # 0 belongs to the player. TODO: Find a better alternative to how the ID is currently done. Only Entities have IDs, so there should be a way to store it there...
-
+    # Initialize console stuff
     libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
     libtcod.console_init_root(constants['screen_width'], constants['screen_height'], constants['window_title'], False)
     con = libtcod.console_new(constants['screen_width'], constants['screen_height']) # The main console of the game.
     panel = libtcod.console_new(constants['screen_width'], constants['panel_height']) # A UI panel for the game.
 
-    priority_queue = PriorityQueue() # Start a Priority Queue.
+    # Declare these variables here, but fill them according to functions below
+    player = None
+    entities = []
+    game_map = None
+    message_log = None
+    game_state = None
+    priority_queue = []
+    ID = 1 # 0 belongs to the player. TODO: Find a better alternative to how the ID is currently done. Only Entities have IDs, so there should be a way to store it there...
 
-    player, entities, game_map, message_log, game_state = get_game_variables(constants, ID, priority_queue)
+    show_main_menu = True
+    show_load_error_message = False
 
-    previous_game_state = game_state
+    main_menu_background_image = libtcod.image_load('menu_background.png')
 
+    key = libtcod.Key()
+    mouse = libtcod.Mouse()
+
+    while not libtcod.console_is_window_closed():
+        libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
+
+        if show_main_menu:
+            main_menu(con, main_menu_background_image, constants['screen_width'],
+                      constants['screen_height'])
+
+            if show_load_error_message:
+                message_box(con, 'No save game to load', 50, constants['screen_width'], constants['screen_height'])
+
+            libtcod.console_flush()
+
+            action = handle_main_menu(key)
+
+            new_game = action.get('new_game')
+            load_saved_game = action.get('load_game')
+            exit_game = action.get('exit')
+
+            if show_load_error_message and (new_game or load_saved_game or exit_game):
+                show_load_error_message = False
+            elif new_game:
+                player, entities, game_map, message_log, game_state, priority_queue = get_game_variables(constants, ID)
+                show_main_menu = False
+            elif load_saved_game:
+                try:
+                    player, entities, game_map, message_log, game_state, priority_queue = load_game()
+                    show_main_menu = False
+                except FileNotFoundError:
+                    show_load_error_message = True
+            elif exit_game:
+                break
+
+        else:
+            libtcod.console_clear(con)
+            play_game(player, entities, game_map, message_log, game_state, con, panel, constants, priority_queue)
+
+            show_main_menu = True
+
+def play_game(player, entities, game_map, message_log, game_state, con, panel, constants, priority_queue):
     fov_recompute = True
 
     fov_map = initialize_fov(game_map)
@@ -35,6 +86,8 @@ def main():
     mouse = libtcod.Mouse()
 
     targeting_item = None
+
+    previous_game_state = game_state
 
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
@@ -147,6 +200,7 @@ def main():
             elif game_state == GameStates.TARGETING:
                 player_turn_results.append({'targeting_cancelled': True})
             else:
+                save_game(player, entities, game_map, message_log, game_state, priority_queue)
                 return True
 
         if fullscreen:

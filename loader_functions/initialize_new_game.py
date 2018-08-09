@@ -6,6 +6,7 @@ from entity import Entity
 from game_messages import MessageLog
 from game_states import GameStates
 from map_objects.game_map import GameMap
+from priority_queue import PriorityQueue
 from render_functions import RenderOrder
 
 def get_constants():
@@ -63,19 +64,25 @@ def get_constants():
 
     return constants
 
-def get_game_variables(constants, ID, priority_queue):
+def get_game_variables(constants, ID):
+    # Start the priority queue.
+    priority_queue = PriorityQueue()
+
+    # Initialize Player entity.
     fighter_component = Fighter(hp=30, defense=2, power=5)
     inventory_component = Inventory(26)
     player = Entity(0, 0, '@', libtcod.red, 'Red', ID=0, blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, inventory=inventory_component)
     priority_queue.put(action_points=player.fighter.speed, ID=player.ID)
     entities = [player]
 
-    # Define the Game Map
+    # Define the Game Map.
     game_map = GameMap(constants['map_width'], constants['map_height'])
     game_map.make_map(constants['map_width'], constants['map_height'], player, entities, ID, priority_queue, constants['monster_spawn_chance'], constants['item_spawn_chance']) # TODO: Spawn chances should be biome variables
 
+    # Define the Message Log.
     message_log = MessageLog(constants['message_x'], constants['message_width'], constants['message_height'])
 
+    # Set the Game State.
     game_state = GameStates.NEUTRAL_TURN
 
-    return player, entities, game_map, message_log, game_state
+    return player, entities, game_map, message_log, game_state, priority_queue
