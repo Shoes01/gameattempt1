@@ -5,6 +5,7 @@ from components.ai import BasicMonster
 from components.fighter import Fighter
 from components.item import Item
 from entity import Entity
+from global_variables import GlobalVariables
 from item_functions import heal
 from map_objects.tile import Tile
 from priority_queue import PriorityQueue
@@ -32,7 +33,7 @@ class GameMap:
 
         return tiles
 
-    def make_map(self, map_width, map_height, player, entities, ID, priority_queue, monster_spawn_chance, item_spawn_chance):
+    def make_map(self, map_width, map_height, player, entities, global_variables, priority_queue, monster_spawn_chance, item_spawn_chance):
         """
         At first, the road will have a 50% chance to be E-W or N-S. 
         """
@@ -51,9 +52,9 @@ class GameMap:
                     player.x = int(map_width/2)
                     player.y = 2
         
-        self.place_entities(map_height, map_width, entities, ID, priority_queue, monster_spawn_chance, item_spawn_chance)
+        self.place_entities(map_height, map_width, entities, global_variables, priority_queue, monster_spawn_chance, item_spawn_chance)
 
-    def place_entities(self, map_height, map_width, entities, ID, priority_queue, monster_spawn_chance, item_spawn_chance):        
+    def place_entities(self, map_height, map_width, entities, global_variables, priority_queue, monster_spawn_chance, item_spawn_chance):        
         #place monsters according to the tile they are found in
         for y in range(map_height):
             for x in range(map_width):
@@ -64,14 +65,12 @@ class GameMap:
                     if self.tiles[x][y].tile_type == 'dirt':
                         fighter_component = Fighter(hp=3, defense=3, power=1, speed=100)
                         ai_component = BasicMonster()
-                        monster = Entity(x, y, 'g', libtcod.light_grey, 'Geodude', ID, blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
-                        ID += 1
+                        monster = Entity(x, y, 'g', libtcod.light_grey, 'Geodude', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
                         priority_queue.put(action_points=monster.fighter.speed, ID=monster.ID)
                     elif self.tiles[x][y].tile_type == 'grass':
                         fighter_component = Fighter(hp=2, defense=0, power=0, speed=600)
                         ai_component = BasicMonster()
-                        monster = Entity(x, y, 'c', libtcod.light_green, 'Caterpie', ID, blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
-                        ID += 1
+                        monster = Entity(x, y, 'c', libtcod.light_green, 'Caterpie', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
                         priority_queue.put(action_points=monster.fighter.speed, ID=monster.ID)
                     
                     entities.append(monster)
@@ -80,8 +79,7 @@ class GameMap:
                     #an item spawns here!
                     if not any([entity for entity in entities if entity.x == x and entity.y == y]):
                         item_component = Item(use_function=heal, amount=4)
-                        item = Entity(x, y, '!', libtcod.violet, 'Healing Potion', ID, render_order=RenderOrder.ITEM, item=item_component)
-                        ID += 1
+                        item = Entity(x, y, '!', libtcod.violet, 'Healing Potion', global_variables.get_new_ID(), render_order=RenderOrder.ITEM, item=item_component)
 
                         entities.append(item)
 

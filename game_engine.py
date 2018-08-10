@@ -29,7 +29,7 @@ def main():
     message_log = None
     game_state = None
     priority_queue = []
-    ID = 1 # 0 belongs to the player. TODO: Find a better alternative to how the ID is currently done. Only Entities have IDs, so there should be a way to store it there...
+    global_variables = None
 
     show_main_menu = True
     show_load_error_message = False
@@ -60,11 +60,11 @@ def main():
             if show_load_error_message and (new_game or load_saved_game or exit_game):
                 show_load_error_message = False
             elif new_game:
-                player, entities, game_map, message_log, game_state, priority_queue = get_game_variables(constants, ID)
+                player, entities, game_map, message_log, game_state, priority_queue, global_variables = get_game_variables(constants)
                 show_main_menu = False
             elif load_saved_game:
                 try:
-                    player, entities, game_map, message_log, game_state, priority_queue = load_game()
+                    player, entities, game_map, message_log, game_state, priority_queue, global_variables = load_game()
                     show_main_menu = False
                 except FileNotFoundError:
                     show_load_error_message = True
@@ -73,11 +73,11 @@ def main():
 
         else:
             libtcod.console_clear(con)
-            play_game(player, entities, game_map, message_log, game_state, con, panel, constants, priority_queue)
+            play_game(player, entities, game_map, message_log, game_state, con, panel, constants, priority_queue, global_variables)
 
             show_main_menu = True
 
-def play_game(player, entities, game_map, message_log, game_state, con, panel, constants, priority_queue):
+def play_game(player, entities, game_map, message_log, game_state, con, panel, constants, priority_queue, global_variables):
     fov_recompute = True
 
     fov_map = initialize_fov(game_map)
@@ -200,7 +200,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             elif game_state == GameStates.TARGETING:
                 player_turn_results.append({'targeting_cancelled': True})
             else:
-                save_game(player, entities, game_map, message_log, game_state, priority_queue)
+                save_game(player, entities, game_map, message_log, game_state, priority_queue, global_variables)
                 return True
 
         if fullscreen:
