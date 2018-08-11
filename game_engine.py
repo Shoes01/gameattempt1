@@ -15,16 +15,15 @@ from priority_queue import PriorityQueue
 from render_functions import clear_all, render_all
 
 def main():
-
     constants = get_constants()
 
     # Initialize console stuff
-    libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
-    libtcod.console_init_root(constants['screen_width'], constants['screen_height'], constants['window_title'], False)
+    libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD) # The font.
+    libtcod.console_init_root(constants['screen_width'], constants['screen_height'], constants['window_title'], False) #The size of the root console.
     con = libtcod.console_new(constants['screen_width'], constants['screen_height']) # The main console of the game.
     panel = libtcod.console_new(constants['screen_width'], constants['panel_height']) # A UI panel for the game.
 
-    # Declare these variables here, but fill them according to functions below
+    # Declare these variables here, but fill them later
     player = None
     entities = []
     game_map = None
@@ -45,8 +44,7 @@ def main():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
 
         if show_main_menu:
-            main_menu(con, main_menu_background_image, constants['screen_width'],
-                      constants['screen_height'])
+            main_menu(con, main_menu_background_image, constants['screen_width'], constants['screen_height'])
 
             if show_load_error_message:
                 message_box(con, 'No save game to load', 50, constants['screen_width'], constants['screen_height'])
@@ -77,7 +75,7 @@ def main():
             libtcod.console_clear(con)
             play_game(player, entities, game_map, message_log, game_state, con, panel, constants, priority_queue, global_variables)
 
-            show_main_menu = True
+            show_main_menu = True # When play_game() is done, the menu reappears.
 
 def play_game(player, entities, game_map, message_log, game_state, con, panel, constants, priority_queue, global_variables):
     fov_recompute = True
@@ -87,8 +85,8 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
     key = libtcod.Key()
     mouse = libtcod.Mouse()
 
+    # Variables used to make decisions during the game.
     targeting_item = None
-
     previous_game_state = game_state
 
     while not libtcod.console_is_window_closed():
@@ -97,6 +95,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'], constants['fov_algorithm'])
 
+        # Only render and recompute FOV while on the player's turn.
         if game_state == GameStates.PLAYERS_TURN: 
             render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log,
                     constants['screen_width'], constants['screen_height'], constants['bar_width'],
@@ -106,12 +105,12 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
             libtcod.console_flush()
         
-        clear_all(con, entities)
+            clear_all(con, entities) # The console is cleared, but it will only be flushed on the player's turn.
 
         action = handle_keys(key, game_state)
         mouse_action = handle_mouse(mouse)
 
-        #list of possible actions by the player
+        # List of possible actions taken by the player.
         move = action.get('move')
         pickup = action.get('pickup')
         show_inventory = action.get('show_inventory')
@@ -124,12 +123,13 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         right_click = mouse_action.get('right_click')
 
         player_turn_results = []
-        enemy = None #if it's not the player's turn, it's this enemy's turn
+        enemy = None # If it's not the player's turn, it's _this_ enemy's turn.
 
+        # Only check the queue between turns. TODO: Does this mean that the main game loop is looped twice? > Player > pass > Enemy 1 > pass > Enemy 2 > etc. ?
         if not priority_queue.empty() and game_state == GameStates.NEUTRAL_TURN:
-            queue_ID = priority_queue.get_ID() #this removes the topmost ID from the queue
+            queue_ID = priority_queue.get_ID() # This removes the topmost ID from the queue.
             for entity in entities:
-                if queue_ID == entity.ID and not entity.is_dead():
+                if queue_ID == entity.ID and not entity.is_dead(): # If the entity is dead, do nothing. It has already been removed from the queue.
                     if entity.ai == None: #it's the player
                         game_state = GameStates.PLAYERS_TURN
                         break
@@ -210,7 +210,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
 
         for player_turn_result in player_turn_results:
-            #list of possible results
+            # List of possible results.
             message = player_turn_result.get('message')
             dead_entity = player_turn_result.get('dead')
             item_added = player_turn_result.get('item_added')
@@ -233,7 +233,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 entities.remove(item_added)
 
             if item_consumed:
-                pass #normall we would have changed states, but this is handled elsewhere
+                pass # Normally we would have changed states, but this is handled elsewhere.
 
             if item_dropped:
                 entities.append(item_dropped)
