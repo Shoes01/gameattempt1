@@ -3,7 +3,8 @@ import heapq
 class PriorityQueue:
     def __init__(self):
         self.ticker = 0
-        self.queue = [] #made of (ticker + action points, ID)   
+        self.queue = [] #made of (ticker + action points, ID)
+        heapq.heapify(self.queue) # TODO this is untested
 
     def empty(self):
         return len(self.queue) == 0

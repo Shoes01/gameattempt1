@@ -57,6 +57,9 @@ class Entity:
             self.move(dx, dy)
 
     def move_astar(self, target, entities, game_map):
+        """
+        TODO: This causes slow downs. It is not being used at the moment.
+        """
         # Create a FOV map that has the dimensions of the map
         fov = libtcod.map_new(game_map.width, game_map.height)
 

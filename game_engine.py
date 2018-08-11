@@ -1,4 +1,5 @@
 import libtcodpy as libtcod
+import cProfile
 
 from components.ai import BasicMonster
 from death_functions import kill_monster, kill_player
@@ -14,6 +15,7 @@ from priority_queue import PriorityQueue
 from render_functions import clear_all, render_all
 
 def main():
+
     constants = get_constants()
 
     # Initialize console stuff
@@ -95,14 +97,15 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'], constants['fov_algorithm'])
 
-        render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log,
-                   constants['screen_width'], constants['screen_height'], constants['bar_width'],
-                   constants['panel_height'], constants['panel_y'], mouse, constants['colors'], game_state)
+        if game_state == GameStates.PLAYERS_TURN: 
+            render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log,
+                    constants['screen_width'], constants['screen_height'], constants['bar_width'],
+                    constants['panel_height'], constants['panel_y'], mouse, constants['colors'], game_state)
 
-        fov_recompute = False
+            fov_recompute = False    
 
-        libtcod.console_flush()
-
+            libtcod.console_flush()
+        
         clear_all(con, entities)
 
         action = handle_keys(key, game_state)
@@ -277,4 +280,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 game_state = GameStates.NEUTRAL_TURN
 
 if __name__ == '__main__':
+    """
+    Replace "main()" with "cProfile.run('main()')" to run a profiler.
+    """
     main()
