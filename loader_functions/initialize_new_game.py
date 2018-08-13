@@ -84,6 +84,7 @@ def get_game_variables(constants):
     # Add a pokeball to the Player inventory.
     item_component = Item(use_function=catch, targeting=True, can_contain=True,
                             targeting_message=Message('Left-click a target tile to throw the pokeball, or right-click to cancel. The target must have less than 100 hp.', libtcod.light_cyan),
+                            alt_targeting_message=Message('Left-click a target tile to throw the pokeball, or right-click to cancel. The tile must be empty.', libtcod.light_cyan),
                             power=100)
     item = Entity(0, 0, 'o', libtcod.red, 'Pokeball', global_variables.get_new_ID(), render_order=RenderOrder.ITEM, item=item_component)
     player.inventory.start_with_item(item)

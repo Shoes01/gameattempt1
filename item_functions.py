@@ -38,11 +38,7 @@ def catch(*args, **kwargs):
         results.append({'thrown': None, 'message': Message('You cannot target a tile outside your field of view.', libtcod.yellow)})
         return results
     
-    if item_entity.item.caught_entity:
-        # This pokeball somehow has something in it... set the function to release!
-        item_entity.item.targeting_message = Message('Left-click a target tile to throw the pokeball, or right-click to cancel. The tile must be empty.', libtcod.light_cyan)
-        item_entity.item.use_function = release
-    else:
+    if not item_entity.item.caught_entity:
         # Pokeball is empty. Catch something!
         for entity in entities:
             if entity.x == target_x and entity.y == target_y and entity.ai: # The entity is at the target, and it has an AI.
@@ -60,7 +56,7 @@ def catch(*args, **kwargs):
                                         'message': Message('{0} has captured the {1}!'.format(thrower_entity.name.capitalize(), entity.name.capitalize()), libtcod.green),
                                         'catch': entity})
                     item_entity.item.caught_entity = entity
-                    item_entity.item.targeting_message = Message('Left-click a target tile to throw the pokeball, or right-click to cancel. The tile must be empty.', libtcod.light_cyan)
+                    item_entity.item.swap_messages()
                     item_entity.item.use_function = release # The pokeball can no longer catch things. It can only release things now.
                     break
 
@@ -101,11 +97,7 @@ def release(*args, **kwargs):
                                 'message': Message('{0} releases his {1}!'.format(thrower_entity.name.capitalize(), item_entity.item.caught_entity.name.capitalize()), libtcod.green),
                                 'release': item_entity.item.caught_entity})
             item_entity.item.caught_entity = None # The pokeball has nothing in it anymore!
-            item_entity.item.targeting_message = Message('Left-click a target tile to throw the pokeball, or right-click to cancel. The target must have less than 100 hp.', libtcod.light_cyan)
+            item_entity.item.swap_messages()
             item_entity.item.use_function = catch # The pokeball can now catch things.
-    else:
-        # This pokeball is empty, but is trying to release things... change the use_function.
-        item_entity.item.targeting_message = Message('Left-click a target tile to throw the pokeball, or right-click to cancel. The target must have less than 100 hp.', libtcod.light_cyan)
-        item_entity.item.use_function = catch
 
     return results
