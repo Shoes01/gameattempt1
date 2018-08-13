@@ -1,6 +1,15 @@
 import heapq
 
 class PriorityQueue:
+    """
+    The Priorirty Queue keeps track of turn order. Some entities are faster than others,
+    and so they get more turns.
+
+    The game starts on the player's turn.
+    If the PQ is not empty, and it is enemy turn, it gets the next entity in line.
+        * It does not check on the player's turn, because the player doesn't act immediately.
+    """
+
     def __init__(self):
         self.ticker = 0
         self.queue = [] #made of (ticker + action points, ID)

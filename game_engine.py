@@ -126,19 +126,18 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         enemy = None # If it's not the player's turn, it's _this_ enemy's turn.
 
         # Only check the queue between turns. TODO: Does this mean that the main game loop is looped twice? > Player > pass > Enemy 1 > pass > Enemy 2 > etc. ?
-        if not priority_queue.empty() and game_state == GameStates.NEUTRAL_TURN:
+        if not priority_queue.empty() and game_state == GameStates.ENEMY_TURN:
             queue_ID = priority_queue.get_ID() # This removes the topmost ID from the queue.
             for entity in entities:
                 if queue_ID == entity.ID and not entity.is_dead(): # If the entity is dead, do nothing. It has already been removed from the queue.
                     if entity.ai == None: #it's the player
+                        # The player gets reinserted into the queue after their action.
                         game_state = GameStates.PLAYERS_TURN
                         break
                     else:
+                        # The enemy gets reinserted into the queue after their action.
                         enemy = entity
-                        game_state = GameStates.ENEMY_TURN
                         break
-            else:
-                game_state = GameStates.NEUTRAL_TURN
 
         if move and game_state == GameStates.PLAYERS_TURN:
             dx, dy = move
@@ -156,16 +155,16 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                     
                     fov_recompute = True
 
-                priority_queue.put(player.fighter.speed, player.ID)
-                game_state = GameStates.NEUTRAL_TURN
+                priority_queue.put(player.fighter.speed, player.ID) # The player spends their turn to move/attack.
+                game_state = GameStates.ENEMY_TURN
 
         elif pickup and game_state == GameStates.PLAYERS_TURN:
             for entity in entities:
                 if entity.item and entity.x == player.x and entity.y == player.y:
                     pickup_results = player.inventory.add_item(entity)
                     player_turn_results.extend(pickup_results)
-                    priority_queue.put(player.fighter.speed, player.ID)
-                    game_state = GameStates.NEUTRAL_TURN
+                    priority_queue.put(player.fighter.speed, player.ID) # The player spends their turn picking up stuff.
+                    game_state = GameStates.ENEMY_TURN
 
                     break
             else:
@@ -294,7 +293,6 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
             elif not enemy.ai == None:
                 priority_queue.put(enemy.fighter.speed, enemy.ID)
-                game_state = GameStates.NEUTRAL_TURN
 
 if __name__ == '__main__':
     """

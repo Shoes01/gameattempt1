@@ -78,7 +78,7 @@ def get_game_variables(constants):
     fighter_component = Fighter(hp=30, defense=2, power=5)
     inventory_component = Inventory(26)
     player = Entity(0, 0, '@', libtcod.red, 'Red', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, inventory=inventory_component)
-    priority_queue.put(action_points=player.fighter.speed, ID=player.ID)
+    priority_queue.put(action_points=player.fighter.speed, ID=player.ID) # Add the player to the queue for the first time.
     entities = [player]
 
     # Add a pokeball to the Player inventory.
@@ -97,6 +97,6 @@ def get_game_variables(constants):
     message_log = MessageLog(constants['message_x'], constants['message_width'], constants['message_height'])
 
     # Set the Game State.
-    game_state = GameStates.NEUTRAL_TURN
+    game_state = GameStates.ENEMY_TURN # The player is not guaranteed to go first.
 
     return player, entities, game_map, message_log, game_state, priority_queue, global_variables
