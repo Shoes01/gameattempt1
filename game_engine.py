@@ -1,5 +1,5 @@
 import libtcodpy as libtcod
-import cProfile
+import cProfile             # Debug import
 
 from components.ai import BasicMonster
 from death_functions import kill_monster, kill_player
@@ -85,6 +85,8 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
     key = libtcod.Key()
     mouse = libtcod.Mouse()
 
+    debug_counter = 0
+
     # Variables used to make decisions during the game.
     targeting_item = None
     previous_game_state = game_state
@@ -96,12 +98,12 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'], constants['fov_algorithm'])
 
         # Only render and recompute FOV while on the player's turn.
-        if not game_state == GameStates.NEUTRAL_TURN or not game_state == GameStates.ENEMY_TURN: 
+        if not game_state == GameStates.ENEMY_TURN:
             render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log,
                     constants['screen_width'], constants['screen_height'], constants['bar_width'],
                     constants['panel_height'], constants['panel_y'], mouse, constants['colors'], game_state)
 
-            fov_recompute = False    
+            fov_recompute = False
 
             libtcod.console_flush()
         
