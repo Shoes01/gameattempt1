@@ -217,6 +217,9 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             item_dropped = player_turn_result.get('item_dropped')
             targeting = player_turn_result.get('targeting')
             targeting_cancelled = player_turn_result.get('targeting_cancelled')
+            thrown = player_turn_result.get('thrown')                               # This item was thrown. Returns the item entity.
+            catch = player_turn_result.get('catch')                                 # This item catches pokemon. Returns the caught entity.
+            release = player_turn_result.get('release')                             # This item released pokemon. Returns the released entity.
 
             if message:
                 message_log.add_message(message)
@@ -232,7 +235,8 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 entities.remove(item_added)
 
             if item_consumed:
-                pass # Normally we would have changed states, but this is handled elsewhere.
+                # Removed from inventory in inventory.py
+                pass
 
             if item_dropped:
                 entities.append(item_dropped)
@@ -249,6 +253,20 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 game_state = previous_game_state
 
                 message_log.add_message(Message('Targeting cancelled'))
+
+            if thrown:
+                # Removed from inventory in inventory.py
+                thrown.x, thrown.y = player_turn_result.get('target_xy')
+                entities.append(thrown)
+                game_state = GameStates.PLAYERS_TURN
+
+            if catch:
+                entities.remove(catch)
+
+            if release:
+                release.x, release.y = player_turn_result.get('target_xy')
+                entities.append(release)
+                priority_queue.put(release.fighter.speed, release.ID)
 
         if game_state == GameStates.ENEMY_TURN and enemy:
             enemy_turn_results = enemy.ai.take_turn(player, fov_map, game_map, entities)

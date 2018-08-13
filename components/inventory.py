@@ -7,6 +7,9 @@ class Inventory:
         self.capacity = capacity
         self.items = []
 
+    def start_with_item(self, item):
+        self.items.append(item)
+
     def add_item(self, item):
         results = []
 
@@ -26,6 +29,9 @@ class Inventory:
         return results
 
     def use(self, item_entity, **kwargs):
+        """
+        This function uses the item according to it's use_function.
+        """
         results = []
 
         item_component = item_entity.item
@@ -36,11 +42,11 @@ class Inventory:
             if item_component.targeting and not (kwargs.get('target_x') or kwargs.get('target_y')):
                 results.append({'targeting': item_entity})
             else:
-                kwargs = {**item_component.function_kwargs, **kwargs}
+                kwargs = {**item_component.function_kwargs, 'item_entity': item_entity, **kwargs}
                 item_use_results = item_component.use_function(self.owner, **kwargs)
 
                 for item_use_result in item_use_results:
-                    if item_use_result.get('consumed'):
+                    if item_use_result.get('consumed') or item_use_result.get('thrown'):
                         self.remove_item(item_entity)
 
                 results.extend(item_use_results)

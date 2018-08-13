@@ -2,10 +2,12 @@ import libtcodpy as libtcod
 
 from components.fighter import Fighter
 from components.inventory import Inventory
+from components.item import Item
 from entity import Entity
-from game_messages import MessageLog
+from game_messages import MessageLog, Message
 from game_states import GameStates
 from global_variables import GlobalVariables
+from item_functions import catch
 from map_objects.game_map import GameMap
 from priority_queue import PriorityQueue
 from render_functions import RenderOrder
@@ -78,6 +80,13 @@ def get_game_variables(constants):
     player = Entity(0, 0, '@', libtcod.red, 'Red', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, inventory=inventory_component)
     priority_queue.put(action_points=player.fighter.speed, ID=player.ID)
     entities = [player]
+
+    # Add a pokeball to the Player inventory.
+    item_component = Item(use_function=catch, targeting=True, can_contain=True,
+                            targeting_message=Message('Left-click a target tile to throw the pokeball, or right-click to cancel. The target must have less than 100 hp.', libtcod.light_cyan),
+                            power=100)
+    item = Entity(0, 0, 'o', libtcod.red, 'Pokeball', global_variables.get_new_ID(), render_order=RenderOrder.ITEM, item=item_component)
+    player.inventory.start_with_item(item)
 
     # Define the Game Map.
     game_map = GameMap(constants['map_width'], constants['map_height'])
