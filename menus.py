@@ -1,5 +1,7 @@
 import libtcodpy as libtcod
 
+from components.item import Item
+
 
 def menu(con, header, options, width, screen_width, screen_height):
     if len(options) > 26: raise ValueError('Cannot have a menu with more than 26 options.')
@@ -34,7 +36,15 @@ def inventory_menu(con, header, inventory, inventory_width, screen_width, screen
     if len(inventory.items) == 0:
         options = ['Inventory is empty.']
     else:
-        options = [item.name for item in inventory.items]
+        options = []
+        for item in inventory.items:                
+            if item.item.can_contain:
+                if item.item.caught_entity:
+                    options.append(item.name + ' (' + item.item.caught_entity.name.capitalize() + ')')
+                else:
+                    options.append(item.name + ' (empty)')
+            else:
+                options.append(item.name)
 
     menu(con, header, options, inventory_width, screen_width, screen_height)
 
