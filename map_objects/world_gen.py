@@ -2,43 +2,18 @@ from opensimplex import OpenSimplex
 
 class World:
     """
-    The whole world will be generated from a seed using noise.
-    Noise layers will be used to determine biomes. A layer could be a combination of many noise frequencies.
-        1) A temperature layer will determine cold - hot. 
-        2) A moisture layer will determine sparse - lush.
-        This creates 9 biomes.
-        
-        The temperature layer will determine the ground tile of the biome. 
-        The moisture layer will determine the path blocking entities and the path/sight blocking entities.
-        Together, they will determine the inhabitants and the rare structures.
+    The World information is stored here. GameMap then translates it into tiles and entities.
+    Some noise layers will be used to determine biomes.
+    Some noise layers will determine special tile placement, such as trees.
+    Some noise layers will determine entity placement?
 
-
-
-                                Floor types             Small path blockers             Large path/sight blockers           Inhabitants             Rare structure
-        Cold/Sparse:            Ice, rock,              Boulder                         
-                                packed snow
-
-        Cold/Regular:           
-
-        Cold/Lush:
-
-        Normal/Sparse:
-
-        Normal/Regular:         Grass, dirt             Shrubs, small trees             Large trees                                                 Village
-
-        Normal/Lush:
-
-        Hot/Sparse:
-
-        Hot/Regular:            Sand, dirt
-
-        Hot/Lush:
+    TODO: The World should also include some biomes that are not noise generated, such as towns or adventure-sites. These towns should be connected by roads
     """
     def __init__(self, width, height, seeds):
         self.width = width
         self.height = height
-        self.seeds = seeds                                 # There are 6 usable seeds.
-        self.layers = self.gen_noise_layers()              # This will contain 3 lists. For layers[n][x][y], n is the layer number, x and y are the (x, y) coordinates.
+        self.seeds = seeds                      # There are 6 usable seeds.
+        self.layers = self.gen_noise_layers()   # This will contain 3 lists. For layers[n][x][y], n is the layer number, x and y are the (x, y) coordinates.
 
     def gen_noise_layers(self):
         """
@@ -59,26 +34,27 @@ class World:
         
         return self.layers
     
-    def biome_tile_type_decider(self, layer_number, x, y):
+    def get_biome_at_xy(self, x, y):
         """
-        Biome layer 0 will represent vegetation.
         Given the noise level of an (x, y) coordinate of a noise layer, the biome is returned.
+        Biome layer 0 will represent vegetation.
 
         Combine many biome layers to decide the final biome. 
         For example, vegetation + danger would give "scary forests" or "benign fields".
 
         For testing, there is only one biome layer with a single biome.
+
+        TODO: use more than one noise layer to generate many flavors of biome.
         """
-        noise_level = self.layers[layer_number][x][y]
+        noise_level = self.layers[0][x][y]
 
-        if layer_number == 0: # Vegetation noise layer.
-            if noise_level < 0.2:
-                return 'dirt'
-            elif noise_level < 0.6:
-                return 'grass'
-            elif noise_level < 0.8:
-                return 'tall_grass'
-            else:
-                return 'shrub'
+        if noise_level < 0.2:
+            return 'dirt'
+        elif noise_level < 0.6:
+            return 'grass'
+        elif noise_level < 0.8:
+            return 'tall_grass'
+        else:
+            return 'shrub'
 
-        return 'nothing'
+        return 'nothing' # For when things get more complicated...

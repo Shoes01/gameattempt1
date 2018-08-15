@@ -41,7 +41,7 @@ class GameMap:
         """
         for y in range(map_height):
             for x in range(map_width):
-                self.tiles[x][y].tile_type = world.biome_tile_type_decider(0, x, y)
+                self.tiles[x][y].tile_type = world.get_biome_at_xy(x, y)
         
         self.place_entities(map_height, map_width, entities, global_variables, priority_queue, monster_spawn_chance, item_spawn_chance)
 
