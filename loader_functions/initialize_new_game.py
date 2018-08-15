@@ -18,6 +18,7 @@ from render_functions import RenderOrder
 def get_constants():
     window_title = 'Pokemon Wild pre-alpha'
 
+    # Size of the terminal window.
     screen_width = 80
     screen_height = 50
 
@@ -29,8 +30,13 @@ def get_constants():
     message_width = screen_width - bar_width - 2
     message_height = panel_height - 1
 
-    map_width = 80
-    map_height = 43
+    # Size of the playable area.
+    map_width = 90
+    map_height = 53
+
+    # Size of the camera viewport.
+    camera_width = 80
+    camera_height = 43
 
     fov_algorithm = 0
     fov_light_walls = True
@@ -76,6 +82,8 @@ def get_constants():
         'message_height': message_height,
         'map_width': map_width,
         'map_height': map_height,
+        'camera_width': camera_width,
+        'camera_height': camera_height,
         'fov_algorithm': fov_algorithm,
         'fov_light_walls': fov_light_walls,
         'fov_radius': fov_radius,

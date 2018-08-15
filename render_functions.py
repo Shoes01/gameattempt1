@@ -11,6 +11,7 @@ class RenderOrder(Enum):
     ACTOR = 3
 
 def get_names_under_mouse(mouse, entities, fov_map):
+    # TODO: The camera will change this.
     (x, y) = (mouse.cx, mouse.cy)
 
     names = [entity.name for entity in entities
@@ -34,43 +35,53 @@ def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_c
                              '{0}: {1}/{2}'.format(name, value, maximum))
 
 def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height,
-               bar_width, panel_height, panel_y, mouse, colors, game_state):
+               bar_width, panel_height, panel_y, mouse, colors, game_state, camera_x, camera_y ,camera_width, camera_height):
+   
     # Draw all the tiles in the game map
     if fov_recompute:
-        for y in range(game_map.height):
-            for x in range(game_map.width):
+        for y in range(camera_y, camera_y + camera_height):
+            for x in range(camera_x, camera_x + camera_width):
                 tile_type = game_map.tiles[x][y].tile_type
                 visible = libtcod.map_is_in_fov(fov_map, x, y)
+                # Decide on color names.
                 light_color_name = 'light_' + tile_type
                 dark_color_name = 'dark_' + tile_type
-                
-                """
+                # Convert the map coords to console coords
+                console_x = x - camera_x
+                console_y = y - camera_y
 
-                Where the magic happens. This is the loop that decides the color of each kind of tile.
-                Hopefully my trick works.
-
-                """
-
+                # If the player can see it, make it explored and use the light color.
                 if visible:
                     game_map.tiles[x][y].explored = True
 
                     if tile_type == 'nothing':
-                        libtcod.console_put_char_ex(con, x, y, '?', libtcod.blue, libtcod.dark_blue)
+                        libtcod.console_put_char_ex(con, console_x, console_y, '?', libtcod.blue, libtcod.dark_blue)
                     else:
-                        libtcod.console_set_char_background(con, x, y, colors.get(light_color_name), libtcod.BKGND_SET)
+                        libtcod.console_set_char_background(con, console_x, console_y, colors.get(light_color_name), libtcod.BKGND_SET)
                 
+                # If I can't see it, but it was explored already, use the dark color.
                 elif game_map.tiles[x][y].explored:
                     
                     if tile_type == 'nothing':
-                        libtcod.console_put_char_ex(con, x, y, '?', libtcod.dark_blue, libtcod.black)
+                        libtcod.console_put_char_ex(con, console_x, console_y, '?', libtcod.dark_blue, libtcod.black)
                     else:
-                        libtcod.console_set_char_background(con, x, y, colors.get(dark_color_name), libtcod.BKGND_SET)
+                        libtcod.console_set_char_background(con, console_x, console_y, colors.get(dark_color_name), libtcod.BKGND_SET)
+                # I can neither see it, nor has it been explored. Color it black.
+                elif not visible and not game_map.tiles[x][y].explored:
+                    if tile_type == 'nothing':
+                        libtcod.console_put_char_ex(con, console_x, console_y, '?', libtcod.red, libtcod.dark_red)
+                    else:
+                        libtcod.console_put_char(con, console_x, console_y, ' ', libtcod.BKGND_NONE)
+                        libtcod.console_set_char_background(con, console_x, console_y, libtcod.black, libtcod.BKGND_SET)
                 
     entities_in_render_order = sorted(entities, key=lambda x: x.render_order.value)
 
     # Draw all entities in the list
+    # TODO: The camera will change this.
     for entity in entities_in_render_order:
-        draw_entity(con, entity, fov_map)
+        if libtcod.map_is_in_fov(fov_map, entity.x, entity.y):
+            libtcod.console_set_default_foreground(con, entity.color)
+            libtcod.console_put_char(con, entity.x - camera_x, entity.y - camera_y, entity.char, libtcod.BKGND_NONE)
 
     libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0)
 
@@ -110,16 +121,12 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
     elif game_state == GameStates.CHARACTER_SCREEN:
         character_screen(player, 30, 10, screen_width, screen_height)
 
-def clear_all(con, entities):
+def clear_all(con, entities, camera_x, camera_y):
+    # TODO: The camera will change this.
     for entity in entities:
-        clear_entity(con, entity)
+        clear_entity(con, entity, camera_x, camera_y)
 
-def draw_entity(con, entity, fov_map):
-    if libtcod.map_is_in_fov(fov_map, entity.x, entity.y):
-        libtcod.console_set_default_foreground(con, entity.color)
-        libtcod.console_put_char(con, entity.x, entity.y, entity.char, libtcod.BKGND_NONE)
-
-
-def clear_entity(con, entity):
+def clear_entity(con, entity, camera_x, camera_y):
+    # TODO: The camera will change this.
     # erase the character that represents this object
-    libtcod.console_put_char(con, entity.x, entity.y, ' ', libtcod.BKGND_NONE)
+    libtcod.console_put_char(con, entity.x - camera_x, entity.y - camera_y, ' ', libtcod.BKGND_NONE)
