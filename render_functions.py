@@ -41,18 +41,30 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
             for x in range(game_map.width):
                 tile_type = game_map.tiles[x][y].tile_type
                 visible = libtcod.map_is_in_fov(fov_map, x, y)
+                light_color_name = 'light_' + tile_type
+                dark_color_name = 'dark_' + tile_type
                 
+                """
+
+                Where the magic happens. This is the loop that decides the color of each kind of tile.
+                Hopefully my trick works.
+
+                """
+
                 if visible:
-                    if tile_type == 'dirt':
-                        libtcod.console_set_char_background(con, x, y, colors.get('light_dirt'), libtcod.BKGND_SET)
-                    else: #Assume everything else is grass
-                        libtcod.console_set_char_background(con, x, y, colors.get('light_grass'), libtcod.BKGND_SET)
                     game_map.tiles[x][y].explored = True
+
+                    if tile_type == 'nothing':
+                        libtcod.console_put_char_ex(con, x, y, '?', libtcod.blue, libtcod.dark_blue)
+                    else:
+                        libtcod.console_set_char_background(con, x, y, colors.get(light_color_name), libtcod.BKGND_SET)
+                
                 elif game_map.tiles[x][y].explored:
-                    if tile_type == 'dirt':
-                        libtcod.console_set_char_background(con, x, y, colors.get('dark_dirt'), libtcod.BKGND_SET)
-                    else: #Assume everything else is grass
-                        libtcod.console_set_char_background(con, x, y, colors.get('dark_grass'), libtcod.BKGND_SET)
+                    
+                    if tile_type == 'nothing':
+                        libtcod.console_put_char_ex(con, x, y, '?', libtcod.dark_blue, libtcod.black)
+                    else:
+                        libtcod.console_set_char_background(con, x, y, colors.get(dark_color_name), libtcod.BKGND_SET)
                 
     entities_in_render_order = sorted(entities, key=lambda x: x.render_order.value)
 

@@ -8,6 +8,7 @@ from entity import Entity
 from global_variables import GlobalVariables
 from item_functions import heal
 from map_objects.tile import Tile
+from map_objects.world_gen import World
 from priority_queue import PriorityQueue
 from render_functions import RenderOrder
 
@@ -28,29 +29,19 @@ class GameMap:
         self.tiles = self.initialize_tiles()
 
     def initialize_tiles(self):
-        #Fill everything with grass
+        # Set the size of the tiles of the map (I think?)
         tiles = [[Tile(False) for y in range(self.height)] for x in range(self.width)]          
 
         return tiles
 
-    def make_map(self, map_width, map_height, player, entities, global_variables, priority_queue, monster_spawn_chance, item_spawn_chance):
+    def make_map(self, map_width, map_height, player, entities, global_variables, priority_queue, monster_spawn_chance, item_spawn_chance, world):
         """
-        At first, the road will have a 50% chance to be E-W or N-S. 
+        Attempt to use biomes. 
+        There is only one biome at the moment.
         """
-        chance = randint(0, 100)
-    
         for y in range(map_height):
             for x in range(map_width):
-                #horizontal road
-                if chance >= 50 and y > map_height/2 - 3 + 2 and y < map_height/2 + 3 + 2: #Plus two to offset the fact that map height is not console height
-                    self.tiles[x][y].tile_type = 'dirt'
-                    player.x = 2
-                    player.y = int(map_height/2 + 2)
-                #vertical road
-                elif chance < 50 and x > map_width/2 - 3 and x < map_width/2 + 3:
-                    self.tiles[x][y].tile_type = 'dirt'
-                    player.x = int(map_width/2)
-                    player.y = 2
+                self.tiles[x][y].tile_type = world.biome_tile_type_decider(0, x, y)
         
         self.place_entities(map_height, map_width, entities, global_variables, priority_queue, monster_spawn_chance, item_spawn_chance)
 
@@ -62,6 +53,7 @@ class GameMap:
                 item_chance = randint(0, 1000)
                 if monster_chance > monster_spawn_chance:
                     #a monster spawns here!
+                    """
                     if self.tiles[x][y].tile_type == 'dirt':
                         fighter_component = Fighter(hp=3, defense=3, power=1, speed=100, xp=35)
                         ai_component = BasicMonster()
@@ -74,6 +66,7 @@ class GameMap:
                         priority_queue.put(action_points=monster.fighter.speed, ID=monster.ID)
                     
                     entities.append(monster)
+                    """
                     
                 if item_chance > item_spawn_chance:
                     #an item spawns here!

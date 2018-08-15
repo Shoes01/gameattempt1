@@ -24,7 +24,7 @@ def main():
     panel = libtcod.console_new(constants['screen_width'], constants['panel_height']) # A UI panel for the game.
 
     # Declare these variables here, but fill them later
-    player = None
+    player = None   
     entities = []
     game_map = None
     message_log = None
@@ -60,11 +60,11 @@ def main():
             if show_load_error_message and (new_game or load_saved_game or exit_game):
                 show_load_error_message = False
             elif new_game:
-                player, entities, game_map, message_log, game_state, priority_queue, global_variables = get_game_variables(constants)
+                player, entities, game_map, message_log, game_state, priority_queue, global_variables, world = get_game_variables(constants)
                 show_main_menu = False
             elif load_saved_game:
                 try:
-                    player, entities, game_map, message_log, game_state, priority_queue, global_variables = load_game()
+                    player, entities, game_map, message_log, game_state, priority_queue, global_variables, world = load_game()
                     show_main_menu = False
                 except FileNotFoundError:
                     show_load_error_message = True
@@ -73,19 +73,17 @@ def main():
 
         else:
             libtcod.console_clear(con)
-            play_game(player, entities, game_map, message_log, game_state, con, panel, constants, priority_queue, global_variables)
+            play_game(player, entities, game_map, message_log, game_state, con, panel, constants, priority_queue, global_variables, world)
 
             show_main_menu = True # When play_game() is done, the menu reappears.
 
-def play_game(player, entities, game_map, message_log, game_state, con, panel, constants, priority_queue, global_variables):
+def play_game(player, entities, game_map, message_log, game_state, con, panel, constants, priority_queue, global_variables, world):
     fov_recompute = True
 
     fov_map = initialize_fov(game_map)
 
     key = libtcod.Key()
     mouse = libtcod.Mouse()
-
-    debug_counter = 0
 
     # Variables used to make decisions during the game.
     targeting_item = None
@@ -212,7 +210,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             elif game_state == GameStates.TARGETING:
                 player_turn_results.append({'targeting_cancelled': True})
             else:
-                save_game(player, entities, game_map, message_log, game_state, priority_queue, global_variables)
+                save_game(player, entities, game_map, message_log, game_state, priority_queue, global_variables, world)
                 return True
 
         if fullscreen:

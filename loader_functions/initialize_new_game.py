@@ -1,4 +1,5 @@
 import libtcodpy as libtcod
+from random import randint
 
 from components.fighter import Fighter
 from components.inventory import Inventory
@@ -10,6 +11,7 @@ from game_states import GameStates
 from global_variables import GlobalVariables
 from item_functions import catch
 from map_objects.game_map import GameMap
+from map_objects.world_gen import World
 from priority_queue import PriorityQueue
 from render_functions import RenderOrder
 
@@ -40,11 +42,27 @@ def get_constants():
     colors = {
         'dark_wall': libtcod.Color(0, 0, 100),
         'dark_ground': libtcod.Color(50, 50, 150),
-        'dark_dirt': libtcod.Color(63, 50, 31),
-        'dark_grass': libtcod.Color(0, 64, 0),
-        'light_dirt': libtcod.Color(127, 101, 63),
-        'light_grass': libtcod.Color(0, 191, 0)
+
+        # Vegetation biome colors.
+        'dark_dirt': libtcod.darker_sepia,
+        'light_dirt': libtcod.sepia,
+
+        'dark_grass': libtcod.darker_green,
+        'light_grass': libtcod.green,
+
+        'dark_tall_grass': libtcod.dark_chartreuse,
+        'light_tall_grass': libtcod.chartreuse,
+        
+        'dark_shrub': libtcod.darkest_lime,
+        'light_shrub': libtcod.dark_lime
     }
+
+    # Generate seeds used for world gen.
+    seeds = []
+    for i in range(5):
+        seeds.append(randint(0, 10000))
+
+    world = World(map_width, map_height, seeds) # TODO: Eventually, when the world is bigger than the map, change this.
 
     constants = {
         'window_title': window_title,
@@ -63,7 +81,8 @@ def get_constants():
         'fov_radius': fov_radius,
         'monster_spawn_chance': monster_spawn_chance,
         'item_spawn_chance': item_spawn_chance,
-        'colors': colors
+        'colors': colors,
+        'world': world
     }
 
     return constants
@@ -79,7 +98,9 @@ def get_game_variables(constants):
     fighter_component = Fighter(hp=30, defense=2, power=5)
     inventory_component = Inventory(26)
     level_component = Level()
-    player = Entity(0, 0, '@', libtcod.red, 'Red', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, inventory=inventory_component, level=level_component)
+    x = randint(0, constants['map_width'])
+    y = randint(0, constants['map_height'])
+    player = Entity(x, y, '@', libtcod.red, 'Red', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, inventory=inventory_component, level=level_component)
     priority_queue.put(action_points=player.fighter.speed, ID=player.ID) # Add the player to the queue for the first time.
     entities = [player]
 
@@ -92,8 +113,14 @@ def get_game_variables(constants):
     player.inventory.start_with_item(item)
 
     # Define the Game Map.
+    """
     game_map = GameMap(constants['map_width'], constants['map_height'])
     game_map.make_map(constants['map_width'], constants['map_height'], player, entities, global_variables, priority_queue, constants['monster_spawn_chance'], constants['item_spawn_chance']) # TODO: Spawn chances should be biome variables
+    """
+    # Generate world map.
+    game_map = GameMap(constants['world'].width, constants['world'].height)
+    game_map.make_map(constants['map_width'], constants['map_height'], player, entities, global_variables, priority_queue, constants['monster_spawn_chance'], constants['item_spawn_chance'], constants['world']) # TODO: Spawn chances should be biome variables
+    
 
     # Define the Message Log.
     message_log = MessageLog(constants['message_x'], constants['message_width'], constants['message_height'])
@@ -101,4 +128,4 @@ def get_game_variables(constants):
     # Set the Game State.
     game_state = GameStates.ENEMY_TURN # The player is not guaranteed to go first.
 
-    return player, entities, game_map, message_log, game_state, priority_queue, global_variables
+    return player, entities, game_map, message_log, game_state, priority_queue, global_variables, constants['world']

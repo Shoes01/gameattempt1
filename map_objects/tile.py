@@ -2,7 +2,7 @@ class Tile:
     """
     A tile on a map. It may or may not be blocked, and may or may not block sight.
     """
-    def __init__(self, blocked, block_sight=None, tile_type='grass'):
+    def __init__(self, blocked, block_sight=None, tile_type='nothing'):
         self.blocked = blocked
         self.tile_type = tile_type
 

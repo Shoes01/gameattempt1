@@ -2,7 +2,7 @@ import os
 import shelve
 
 
-def save_game(player, entities, game_map, message_log, game_state, priority_queue, global_variables):
+def save_game(player, entities, game_map, message_log, game_state, priority_queue, global_variables, world):
     save_file = 'savegame'
     save_path = 'savegames'
     with shelve.open(os.path.join(save_path, save_file), 'n') as data_file:
@@ -13,6 +13,7 @@ def save_game(player, entities, game_map, message_log, game_state, priority_queu
         data_file['game_state'] = game_state
         data_file['priority_queue'] = priority_queue
         data_file['global_variables'] = global_variables
+        data_file['world'] = world
 
 def load_game():
     save_file = 'savegame'
@@ -28,7 +29,8 @@ def load_game():
         game_state = data_file['game_state']
         priority_queue = data_file['priority_queue']
         global_variables = data_file['global_variables']
+        world = data_file['world']
 
     player = entities[player_index]
 
-    return player, entities, game_map, message_log, game_state, priority_queue, global_variables
+    return player, entities, game_map, message_log, game_state, priority_queue, global_variables, world
