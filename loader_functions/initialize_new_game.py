@@ -52,7 +52,7 @@ def get_constants():
 
         'dark_tall_grass': libtcod.dark_chartreuse,
         'light_tall_grass': libtcod.chartreuse,
-        
+
         'dark_shrub': libtcod.darkest_lime,
         'light_shrub': libtcod.dark_lime
     }
@@ -98,9 +98,10 @@ def get_game_variables(constants):
     fighter_component = Fighter(hp=30, defense=2, power=5)
     inventory_component = Inventory(26)
     level_component = Level()
-    x = randint(0, constants['map_width'])
-    y = randint(0, constants['map_height'])
+    x = randint(2, constants['map_width'] - 2)
+    y = randint(2, constants['map_height'] - 2)
     player = Entity(x, y, '@', libtcod.red, 'Red', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, inventory=inventory_component, level=level_component)
+    player = Entity(0, 0, '@', libtcod.red, 'Red', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, inventory=inventory_component)
     priority_queue.put(action_points=player.fighter.speed, ID=player.ID) # Add the player to the queue for the first time.
     entities = [player]
 
