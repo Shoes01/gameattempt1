@@ -114,12 +114,15 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
         # List of possible actions taken by the player.
         move = action.get('move')
+        wait = action.get('wait')
         pickup = action.get('pickup')
         show_inventory = action.get('show_inventory')
         drop_inventory = action.get('drop_inventory')
         inventory_index = action.get('inventory_index')
         exit = action.get('exit')
         fullscreen = action.get('fullscreen')
+        level_up = action.get('level_up')
+        show_character_screen = action.get('show_character_screen')
 
         left_click = mouse_action.get('left_click')
         right_click = mouse_action.get('right_click')
@@ -160,6 +163,12 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 priority_queue.put(player.fighter.speed, player.ID) # The player spends their turn to move/attack.
                 game_state = GameStates.ENEMY_TURN
 
+        elif wait:
+            # The player allows the next entity in the queue to take their action.
+            next_in_queue_speed = priority_queue.queue[0][0]
+            priority_queue.put(next_in_queue_speed + 1, player.ID) # The player spends their turn waiting. There is a speed bonus for that!
+            game_state = GameStates.ENEMY_TURN
+
         elif pickup and game_state == GameStates.PLAYERS_TURN:
             for entity in entities:
                 if entity.item and entity.x == player.x and entity.y == player.y:
@@ -198,7 +207,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 player_turn_results.append({'targeting_cancelled': True})
         
         if exit:
-            if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
+            if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY, GameStates.CHARACTER_SCREEN):
                 game_state = previous_game_state
             elif game_state == GameStates.TARGETING:
                 player_turn_results.append({'targeting_cancelled': True})
@@ -208,6 +217,21 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
         if fullscreen:
             libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
+
+        if level_up:
+            if level_up == 'hp':
+                player.fighter.max_hp += 20
+                player.fighter.hp += 20
+            elif level_up == 'str':
+                player.fighter.power += 1
+            elif level_up == 'def':
+                player.fighter.defense += 1
+
+            game_state = previous_game_state
+
+        if show_character_screen:
+            previous_game_state = game_state
+            game_state = GameStates.CHARACTER_SCREEN
 
         for player_turn_result in player_turn_results:
             # List of possible results.
@@ -221,6 +245,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             thrown = player_turn_result.get('thrown')                               # This item was thrown. Returns the item entity.
             catch = player_turn_result.get('catch')                                 # This item catches pokemon. Returns the caught entity.
             release = player_turn_result.get('release')                             # This item released pokemon. Returns the released entity.
+            xp = player_turn_result.get('xp')
 
             if message:
                 message_log.add_message(message)
@@ -268,6 +293,16 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 release.x, release.y = player_turn_result.get('target_xy')
                 entities.append(release)
                 priority_queue.put(release.fighter.speed, release.ID)
+            
+            if xp:
+                leveled_up = player.level.add_xp(xp)
+                message_log.add_message(Message('You gain {0} experience points.'.format(xp)))
+
+                if leveled_up:
+                    message_log.add_message(Message(
+                        'Your battle skills grow stronger! You reached level {0}'.format(player.level.current_level) + '!', libtcod.yellow))
+                    previous_game_state = game_state
+                    game_state = GameStates.LEVEL_UP
 
         if game_state == GameStates.ENEMY_TURN and enemy:
             enemy_turn_results = enemy.ai.take_turn(player, fov_map, game_map, entities)
