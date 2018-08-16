@@ -182,8 +182,8 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 game_state = GameStates.ENEMY_TURN
 
         elif wait:
-            # The player allows the next entity in the queue to take their action.
-            priority_queue.put(1, player.ID) # The player spends their turn waiting. There is a speed bonus for that!
+            # Puts the player second in queue. 
+            priority_queue.put_next(player.ID)
             game_state = GameStates.ENEMY_TURN
 
         elif pickup and game_state == GameStates.PLAYERS_TURN:

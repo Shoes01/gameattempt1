@@ -26,6 +26,11 @@ class PriorityQueue:
         heapq.heappush(self.queue, (self.ticker + action_points, ID))
         self.ticker = self.queue[0][0]
 
+    def put_next(self, ID):
+        # This action does not advance the ticker
+        heapq.heappush(self.queue, (self.queue[0][0] + 1, ID))
+        self.ticker = self.queue[0][0]
+
     def get_ID(self):        
         return heapq.heappop(self.queue)[1]
 

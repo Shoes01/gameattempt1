@@ -11,7 +11,6 @@ class RenderOrder(Enum):
     ACTOR = 3
 
 def get_names_under_mouse(mouse, entities, fov_map, camera_x, camera_y):
-    # TODO: The camera will change this.
     (x, y) = (mouse.cx + camera_x, mouse.cy + camera_y)
 
     names = [entity.name for entity in entities
