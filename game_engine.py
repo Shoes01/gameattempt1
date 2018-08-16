@@ -129,6 +129,22 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         action = handle_keys(key, game_state)
         mouse_action = handle_mouse(mouse)
 
+        enemy = None # If it's not the player's turn, it's _this_ enemy's turn.
+
+        # Decide the entity's turn.
+        if not priority_queue.empty() and game_state == GameStates.ENEMY_TURN:
+            queue_ID = priority_queue.get_ID() # This removes the topmost ID from the queue.
+            for entity in entities:
+                if queue_ID == entity.ID and not entity.is_dead(): # If the entity is dead, do nothing. It has already been removed from the queue.
+                    if entity.ai == None: #it's the player
+                        # The player gets reinserted into the queue after their action.
+                        game_state = GameStates.PLAYERS_TURN
+                        break
+                    else:
+                        # The enemy gets reinserted into the queue after their action.
+                        enemy = entity
+                        break
+
         # List of possible actions taken by the player.
         move = action.get('move')
         wait = action.get('wait')
@@ -145,21 +161,6 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         right_click = mouse_action.get('right_click')
 
         player_turn_results = []
-        enemy = None # If it's not the player's turn, it's _this_ enemy's turn.
-
-        # Only check the queue between turns. TODO: Does this mean that the main game loop is looped twice? > Player > pass > Enemy 1 > pass > Enemy 2 > etc. ?
-        if not priority_queue.empty() and game_state == GameStates.ENEMY_TURN:
-            queue_ID = priority_queue.get_ID() # This removes the topmost ID from the queue.
-            for entity in entities:
-                if queue_ID == entity.ID and not entity.is_dead(): # If the entity is dead, do nothing. It has already been removed from the queue.
-                    if entity.ai == None: #it's the player
-                        # The player gets reinserted into the queue after their action.
-                        game_state = GameStates.PLAYERS_TURN
-                        break
-                    else:
-                        # The enemy gets reinserted into the queue after their action.
-                        enemy = entity
-                        break
 
         if move and game_state == GameStates.PLAYERS_TURN:
             dx, dy = move
@@ -182,8 +183,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
         elif wait:
             # The player allows the next entity in the queue to take their action.
-            next_in_queue_speed = priority_queue.queue[0][0]
-            priority_queue.put(next_in_queue_speed + 1, player.ID) # The player spends their turn waiting. There is a speed bonus for that!
+            priority_queue.put(1, player.ID) # The player spends their turn waiting. There is a speed bonus for that!
             game_state = GameStates.ENEMY_TURN
 
         elif pickup and game_state == GameStates.PLAYERS_TURN:

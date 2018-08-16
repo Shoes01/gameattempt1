@@ -68,7 +68,7 @@ def get_constants():
     for i in range(5):
         seeds.append(randint(0, 10000))
 
-    world = World(map_width, map_height, seeds) # TODO: Eventually, when the world is bigger than the map, change this.
+    world = World(map_width, map_height, seeds)
 
     constants = {
         'window_title': window_title,
@@ -109,7 +109,6 @@ def get_game_variables(constants):
     x = randint(2, constants['map_width'] - 2)
     y = randint(2, constants['map_height'] - 2)
     player = Entity(x, y, '@', libtcod.red, 'Red', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, inventory=inventory_component, level=level_component)
-    player = Entity(0, 0, '@', libtcod.red, 'Red', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, inventory=inventory_component)
     priority_queue.put(action_points=player.fighter.speed, ID=player.ID) # Add the player to the queue for the first time.
     entities = [player]
 
@@ -121,16 +120,10 @@ def get_game_variables(constants):
     item = Entity(0, 0, 'o', libtcod.red, 'Pokeball', global_variables.get_new_ID(), render_order=RenderOrder.ITEM, item=item_component)
     player.inventory.start_with_item(item)
 
-    # Define the Game Map.
-    """
-    game_map = GameMap(constants['map_width'], constants['map_height'])
-    game_map.make_map(constants['map_width'], constants['map_height'], player, entities, global_variables, priority_queue, constants['monster_spawn_chance'], constants['item_spawn_chance']) # TODO: Spawn chances should be biome variables
-    """
     # Generate world map.
     game_map = GameMap(constants['world'].width, constants['world'].height)
     game_map.make_map(constants['map_width'], constants['map_height'], player, entities, global_variables, priority_queue, constants['monster_spawn_chance'], constants['item_spawn_chance'], constants['world']) # TODO: Spawn chances should be biome variables
     
-
     # Define the Message Log.
     message_log = MessageLog(constants['message_x'], constants['message_width'], constants['message_height'])
 
