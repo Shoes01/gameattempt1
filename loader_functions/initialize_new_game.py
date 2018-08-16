@@ -122,7 +122,8 @@ def get_game_variables(constants):
 
     # Generate world map.
     game_map = GameMap(constants['world'].width, constants['world'].height)
-    game_map.make_map(constants['map_width'], constants['map_height'], player, entities, global_variables, priority_queue, constants['monster_spawn_chance'], constants['item_spawn_chance'], constants['world']) # TODO: Spawn chances should be biome variables
+    game_map.make_map(constants['map_width'], constants['map_height'], player, entities, global_variables,
+                        priority_queue, constants['monster_spawn_chance'], constants['item_spawn_chance'], constants['world']) # TODO: Spawn chances should be biome variables
     
     # Define the Message Log.
     message_log = MessageLog(constants['message_x'], constants['message_width'], constants['message_height'])

@@ -15,13 +15,7 @@ from render_functions import RenderOrder
 
 class GameMap:
     """
-    The GameMap will consist of a road that passes through the center of the screen.
-    Choose a start point, draw from start to middle.
-    Choose an end point, draw from middle to end.
-    TODO: Remember endpoint for next map gen
-
-    BUT FOR NOW it will just be a hand made road.
-
+    Import data from World. Generate GameMap with it.
     """
     def __init__(self, width, height):
         self.width = width

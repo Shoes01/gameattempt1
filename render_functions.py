@@ -10,9 +10,9 @@ class RenderOrder(Enum):
     ITEM = 2
     ACTOR = 3
 
-def get_names_under_mouse(mouse, entities, fov_map):
+def get_names_under_mouse(mouse, entities, fov_map, camera_x, camera_y):
     # TODO: The camera will change this.
-    (x, y) = (mouse.cx, mouse.cy)
+    (x, y) = (mouse.cx + camera_x, mouse.cy + camera_y)
 
     names = [entity.name for entity in entities
              if entity.x == x and entity.y == y and libtcod.map_is_in_fov(fov_map, entity.x, entity.y)]
@@ -35,7 +35,7 @@ def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_c
                              '{0}: {1}/{2}'.format(name, value, maximum))
 
 def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height,
-               bar_width, panel_height, panel_y, mouse, colors, game_state, camera_x, camera_y ,camera_width, camera_height):
+               bar_width, panel_height, panel_y, mouse, colors, game_state, camera_x, camera_y, camera_width, camera_height):
    
     # Draw all the tiles in the game map
     if fov_recompute:
@@ -77,7 +77,6 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
     entities_in_render_order = sorted(entities, key=lambda x: x.render_order.value)
 
     # Draw all entities in the list
-    # TODO: The camera will change this.
     for entity in entities_in_render_order:
         if libtcod.map_is_in_fov(fov_map, entity.x, entity.y):
             libtcod.console_set_default_foreground(con, entity.color)
@@ -100,7 +99,7 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
 
     libtcod.console_set_default_foreground(panel, libtcod.light_gray)
     libtcod.console_print_ex(panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT,
-                             get_names_under_mouse(mouse, entities, fov_map))
+                             get_names_under_mouse(mouse, entities, fov_map, camera_x, camera_y))
 
     libtcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, panel_y)
 
@@ -122,11 +121,9 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
         character_screen(player, 30, 10, screen_width, screen_height)
 
 def clear_all(con, entities, camera_x, camera_y):
-    # TODO: The camera will change this.
     for entity in entities:
         clear_entity(con, entity, camera_x, camera_y)
 
 def clear_entity(con, entity, camera_x, camera_y):
-    # TODO: The camera will change this.
     # erase the character that represents this object
     libtcod.console_put_char(con, entity.x - camera_x, entity.y - camera_y, ' ', libtcod.BKGND_NONE)
