@@ -34,20 +34,20 @@ def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_c
                              '{0}: {1}/{2}'.format(name, value, maximum))
 
 def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height,
-               bar_width, panel_height, panel_y, mouse, colors, game_state, camera_x, camera_y, camera_width, camera_height):
+               bar_width, panel_height, panel_y, mouse, colors, game_state, camera):
    
     # Draw all the tiles in the game map
     if fov_recompute:
-        for y in range(camera_y, camera_y + camera_height):
-            for x in range(camera_x, camera_x + camera_width):
+        for y in range(camera.y, camera.y2):
+            for x in range(camera.x, camera.x2):
                 tile_type = game_map.tiles[x][y].tile_type
                 visible = libtcod.map_is_in_fov(fov_map, x, y)
                 # Decide on color names.
                 light_color_name = 'light_' + tile_type
                 dark_color_name = 'dark_' + tile_type
                 # Convert the map coords to console coords
-                console_x = x - camera_x
-                console_y = y - camera_y
+                console_x = x - camera.x
+                console_y = y - camera.y
 
                 # If the player can see it, make it explored and use the light color.
                 if visible:
@@ -79,7 +79,7 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
     for entity in entities_in_render_order:
         if libtcod.map_is_in_fov(fov_map, entity.x, entity.y):
             libtcod.console_set_default_foreground(con, entity.color)
-            libtcod.console_put_char(con, entity.x - camera_x, entity.y - camera_y, entity.char, libtcod.BKGND_NONE)
+            libtcod.console_put_char(con, entity.x - camera.x, entity.y - camera.y, entity.char, libtcod.BKGND_NONE) # TODO: Can the entity know it's screen position?
 
     libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0)
 
@@ -98,7 +98,7 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
 
     libtcod.console_set_default_foreground(panel, libtcod.light_gray)
     libtcod.console_print_ex(panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT,
-                             get_names_under_mouse(mouse, entities, fov_map, camera_x, camera_y))
+                             get_names_under_mouse(mouse, entities, fov_map, camera.x, camera.y))
 
     libtcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, panel_y)
 

@@ -10,6 +10,7 @@ from game_states import GameStates
 from input_handlers import handle_keys, handle_mouse, handle_main_menu
 from loader_functions.initialize_new_game import get_constants, get_game_variables
 from loader_functions.data_loaders import load_game, save_game
+from map_objects.camera import Camera
 from menus import main_menu, message_box
 from priority_queue import PriorityQueue
 from render_functions import clear_all, render_all
@@ -89,6 +90,9 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
     targeting_item = None
     previous_game_state = game_state
 
+    # Turn on camera.
+    camera = Camera(constants['camera_width'], constants['camera_height'], player.x, player.y, constants['map_width'], constants['map_height'])
+
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
 
@@ -97,34 +101,17 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
         # Only render and recompute FOV while on the player's turn.
         if not game_state == GameStates.ENEMY_TURN:
-            # Prepare camera.
-            camera_h = constants['camera_height']
-            camera_w = constants['camera_width']
-            camera_x = player.x - int(camera_w / 2) - 1
-            camera_y = player.y - int(camera_h / 2) - 1
-
-            # Set camera max. It is implied that 0 is min.
-            camera_x_max = game_map.width - camera_w
-            camera_y_max = game_map.height - camera_h
-
-            # Ensure the camera does not reveal things outside the map
-            if camera_x < 0: camera_x = 0
-            if camera_y < 0: camera_y = 0
-            if camera_x > camera_x_max: camera_x = camera_x_max
-            if camera_y > camera_y_max: camera_y = camera_y_max
-
-
             render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log,
                     constants['screen_width'], constants['screen_height'], constants['bar_width'],
                     constants['panel_height'], constants['panel_y'], mouse, constants['colors'], game_state,
-                    camera_x, camera_y, constants['camera_width'], constants['camera_height'])
+                    camera)
 
             fov_recompute = False
 
             libtcod.console_flush()
 
             # The console is cleared, but it will only be flushed on the player's turn. 
-            clear_all(con, entities, camera_x, camera_y)
+            clear_all(con, entities, camera.x, camera.y)
 
         action = handle_keys(key, game_state)
         mouse_action = handle_mouse(mouse)
@@ -174,6 +161,14 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                     attack_results = player.fighter.attack(target)
                     player_turn_results.extend(attack_results)
                 else:
+                    # Check to see if the player is lined up with the center.
+                    # If so, move the camera with the player.
+                    camera_x, camera_y = camera.absolute_center()
+                    if player.x == camera_x:
+                        camera.move(dx, 0)
+                    if player.y == camera_y:
+                        camera.move(0, dy)
+                    
                     player.move(dx, dy)
                     
                     fov_recompute = True
