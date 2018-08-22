@@ -1,4 +1,4 @@
-import libtcodpy as libtcod
+import tcod as libtcod
 
 from entity import get_blocking_entities_at_location
 from game_messages import Message

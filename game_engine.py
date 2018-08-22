@@ -1,4 +1,4 @@
-import libtcodpy as libtcod
+import tcod as libtcod
 import cProfile             # Debug import
 
 from components.ai import BasicMonster
