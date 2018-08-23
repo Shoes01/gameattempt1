@@ -79,6 +79,28 @@ def character_screen(player, character_screen_width, character_screen_height, sc
     y = screen_height // 2 - character_screen_height // 2
     libtcod.console_blit(window, 0, 0, character_screen_width, character_screen_height, 0, x, y, 1.0, 0.7)
 
+def materia_extraction_menu(con, header, inventory, menu_width, screen_width, screen_height):
+    # Show a menu of all the items from which Materia can be extracted.
+    
+    if len(inventory.items) == 0:
+        options = ['There are no materia containing items.']
+    else:
+        options = []
+        for item in inventory.items:
+            if item.item.caught_entity.materia:
+                item_name = item.item.caught_entity.name.capitalize()
+                materia_name = item.item.caught_entity.materia[0]
+                materia_level = item.item.caught_entity.materia[1]
+                options.append(item_name + ' (' + materia_name + ' lvl' + str(materia_level) + ')')
+    
+    menu(con, header, options, menu_width, screen_width, screen_height)
+
+    ## Check to see if there are items that contain materia. 
+    #  If there are some, make a list containing them.
+    #  If not, set options = ['No items have extractable materia.']
+
+    ## Iterate through the new list. Fill the options = [] list with 'item.name + ( item.materia )'
+
 def main_menu(con, background_image, screen_width, screen_height):
     libtcod.image_blit_2x(background_image, 0, 0, 0)
 

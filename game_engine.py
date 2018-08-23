@@ -132,7 +132,11 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                         enemy = entity
                         break
 
-        # List of possible actions taken by the player.
+        """
+
+        List of possible actions taken by the player.
+
+        """
         move = action.get('move')
         wait = action.get('wait')
         pickup = action.get('pickup')
@@ -143,13 +147,16 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         fullscreen = action.get('fullscreen')
         level_up = action.get('level_up')
         show_character_screen = action.get('show_character_screen')
+        show_extract_materia_menu = action.get('show_extract_materia_menu')                 # Prompt the player to extra materia from creature.
 
         left_click = mouse_action.get('left_click')
         right_click = mouse_action.get('right_click')
 
         player_turn_results = []
 
+        # TODO: Put all of these behind a "if game_state == GameStates.PLAYERS_TURN" loop.
         if move and game_state == GameStates.PLAYERS_TURN:
+            # TODO: Prevent player from moving outside the map.
             dx, dy = move
             destination_x = player.x + dx
             destination_y = player.y + dy
@@ -176,7 +183,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 priority_queue.put(player.fighter.speed, player.ID) # The player spends their turn to move/attack.
                 game_state = GameStates.ENEMY_TURN
 
-        elif wait:
+        elif wait and game_state == GameStates.PLAYERS_TURN:
             # Puts the player second in queue. 
             priority_queue.put_next(player.ID)
             game_state = GameStates.ENEMY_TURN
@@ -208,7 +215,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             elif game_state == GameStates.DROP_INVENTORY:
                 player_turn_results.extend(player.inventory.drop_item(item))
        
-        if game_state == GameStates.TARGETING:
+        if game_state == GameStates.TARGETING and game_state == GameStates.PLAYERS_TURN:
             if left_click:
                 target_x, target_y = left_click # TODO: Fix camera and targeting issue
                 target_x += camera.x
@@ -221,7 +228,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 player_turn_results.append({'targeting_cancelled': True})
         
         if exit:
-            if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY, GameStates.CHARACTER_SCREEN):
+            if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY, GameStates.CHARACTER_SCREEN, GameStates.MATERIA_SCREEN):
                 game_state = previous_game_state
             elif game_state == GameStates.TARGETING:
                 player_turn_results.append({'targeting_cancelled': True})
@@ -232,7 +239,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         if fullscreen:
             libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
 
-        if level_up:
+        if level_up and game_state == GameStates.PLAYERS_TURN:
             if level_up == 'hp':
                 player.fighter.max_hp += 20
                 player.fighter.hp += 20
@@ -243,12 +250,20 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
             game_state = previous_game_state
 
-        if show_character_screen:
+        if show_character_screen and game_state == GameStates.PLAYERS_TURN:
             previous_game_state = game_state
             game_state = GameStates.CHARACTER_SCREEN
 
+        if show_extract_materia_menu and game_state == GameStates.PLAYERS_TURN:
+            previous_game_state = game_state
+            game_state = GameStates.MATERIA_SCREEN
+
+        """
+
+        List of possible results from actions taken by the player.
+
+        """
         for player_turn_result in player_turn_results:
-            # List of possible results.
             message = player_turn_result.get('message')
             dead_entity = player_turn_result.get('dead')
             item_added = player_turn_result.get('item_added')

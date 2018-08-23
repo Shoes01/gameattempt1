@@ -50,22 +50,26 @@ class GameMap:
                     if self.tiles[x][y].tile_type == 'dirt':
                         fighter_component = Fighter(hp=3, defense=3, power=1, speed=100, xp=35)
                         ai_component = BasicMonster()
-                        monster = Entity(x, y, 'g', libtcod.light_grey, 'Geodude', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
+                        materia = ('rock', 1)
+                        monster = Entity(x, y, 'g', libtcod.light_grey, 'Geodude', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component, materia=materia)
                         priority_queue.put(action_points=monster.fighter.speed, ID=monster.ID)
                     elif self.tiles[x][y].tile_type == 'grass':
-                        fighter_component = Fighter(hp=2, defense=0, power=0, speed=600, xp=10)
+                        fighter_component = Fighter(hp=1, defense=0, power=2, speed=80, xp=10)
                         ai_component = BasicMonster()
-                        monster = Entity(x, y, 'c', libtcod.light_green, 'Caterpie', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
+                        materia = ('poison', 1)
+                        monster = Entity(x, y, 'b', libtcod.yellow, 'Beedrill', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component, materia=materia)
                         priority_queue.put(action_points=monster.fighter.speed, ID=monster.ID)
                     elif self.tiles[x][y].tile_type == 'tall_grass':
                         fighter_component = Fighter(hp=2, defense=2, power=2, speed=200, xp=20)
                         ai_component = BasicMonster()
-                        monster = Entity(x, y, 'b', libtcod.darker_sea, 'Bulbasaur', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
+                        materia = ('life', 1)
+                        monster = Entity(x, y, 'b', libtcod.darker_sea, 'Bulbasaur', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component, materia=materia)
                         priority_queue.put(action_points=monster.fighter.speed, ID=monster.ID)
                     elif self.tiles[x][y].tile_type == 'shrub':
                         fighter_component = Fighter(hp=2, defense=1, power=1, speed=300, xp=15)
                         ai_component = BasicMonster()
-                        monster = Entity(x, y, 'o', libtcod.darker_azure, 'Oddish', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
+                        materia = ('poison', 2)
+                        monster = Entity(x, y, 'o', libtcod.darker_azure, 'Oddish', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component, materia=materia)
                         priority_queue.put(action_points=monster.fighter.speed, ID=monster.ID)
                     
                     entities.append(monster)

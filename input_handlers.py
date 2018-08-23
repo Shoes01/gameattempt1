@@ -4,6 +4,9 @@ from game_states import GameStates
 
 
 def handle_keys(key, game_state):
+    """
+    Check the Game State, and then return the appropriate action given the key.
+    """
     if game_state == GameStates.PLAYERS_TURN:
         return handle_player_turn_keys(key)
     elif game_state == GameStates.PLAYER_DEAD:
@@ -16,6 +19,8 @@ def handle_keys(key, game_state):
         return handle_level_up_menu(key)
     elif game_state == GameStates.CHARACTER_SCREEN:
         return handle_character_screen(key)
+    elif game_state == GameStates.MATERIA_SCREEN:
+        return handle_materia_extration_menu(key)
 
     return {}
 
@@ -62,6 +67,9 @@ def handle_player_turn_keys(key):
 
     elif key_char == 'c':
         return {'show_character_screen': True}
+
+    elif key_char == 'm':
+        return {'show_extract_materia_menu': True}
 
     if key.vk == libtcod.KEY_ENTER and key.lalt:
         # Alt+Enter: toggle full screen
@@ -140,4 +148,14 @@ def handle_character_screen(key):
     if key.vk == libtcod.KEY_ESCAPE:
         return {'exit': True}
 
+    return {}
+
+def handle_materia_extration_menu(key):
+    if key.vk == libtcod.KEY_ESCAPE:
+        return {'exit': True}
+    
+    index = key.c - ord('a')
+    if index >= 0:
+        return {'extraction_index': index}
+    
     return {}
