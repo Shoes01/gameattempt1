@@ -1,0 +1,120 @@
+###########################
+#                         #
+#         FIXES           #
+#                         #
+###########################
+
+NECESSARY FIXES
+    Fix unseen/inactive entities clogging the queue (see MONSTER AI)
+
+COORDINATE IMRPOVEMENTS
+    Have a way to clearly call "map coordinates" and "screen coordinates"
+
+OPTIMISATION
+    Some of the entity loops could be replaced with dict lookups. Consider splitting the entities list by component. See things.todo.
+
+DESIGN FLAW?
+    Is it better to kill or capture?
+        > The enemy should have a near-death state with almost 100% capturable chacne
+            > The default behavior should be to attempt to auto-cap this near-death creature
+        > The capture loop should have it's own key. 
+            > Press 'x' and the next empty pokeball in your inventory is used to target the nearest enemy.
+
+########################### Primary game mechanic: combination
+#                         #     Gather monster essences
+#                         #     Combine essences for unique effects
+#        FEATURES         #     Merge essences to make entirely new ones
+#                         # Goal: Repair ship using essence to leave planet.
+#                         # Secret Goal : Merge all essence types into one, single essence. Then merge self with it. Ascend to Godhood.    
+########################### Lore: Something caused the omni-essence to split.
+
+HIDDEN EFFECTS
+    Roguelikes are built on random.
+        > At gen, creatures are given a random essence.
+        > Essences must be identified, either through use or other means. (Could include an essence that identifies items)
+        > Is there a way to reliably/intelligently randomize the effect of combined essences?
+
+ESSENCES
+    Previously materia.
+    Essences can be combined for effects, or merged into one... the merger can give something entirely new.
+    Essences can be merged with themselves to produce higher levels.
+        Assume Fire and Water make Steam. 
+        Fire and Fire make Fire2. Fire2 and Fire2 make Fire3. Etc.
+        Fire2 and Water make Steam. Fire2 and Water2 make Steam2.
+    Have different "trees" of essences. Fire-Wind-Earth-Water, Virtue-Bane-Yin-Yang(?), etc.
+        Mergers can only happen within a tree. Once an entire tree is merged, it may merge with other entire trees. Merge 'em all.
+        Combinations can be done across trees. So Fire-Virtue would produce effects, but not be mergable.
+        Possible trees: Fire-Wind-Earth-Water ; Gravity-Electric-Weak Nuclear-Strong Nuclear ; Virtue-Bane-?-? ; 
+    
+
+MONSTER/ENTITY CONSUMPTION (GAMEPLAY FOCUS)
+    When captured, monsters should be either converted to materia or trained to be a companion
+        > Have a new consumption menu state. Access this state via na item in the inventory, or a special key
+            This avoids having an additional prompt when throwing the pokeball to release the pokemon
+            This state could be used for other management things too...
+        > When consumed, create a new item based on the stats of the caught entity
+    All entities could have innate materia powers. Some could be very basic, some could be quite advanced. 
+    Items by default could grant no power at all; instead, the materia embued within grants it power.
+        > Armor would have life-materia and strength-materia, giving you +hp and +armor.
+        > Weapons would have stength-materia, giving it +power
+        > Putting in a electric-materia or a fire-materia would give it chain-lightning or burn damage
+            > Have both fire and electric in one weapon could give an explosive chain lightning
+    Materia could be combined in powerful ways, and sometimes be even impracticaly powerful in certain items.
+        > The example above about explosive-chain lightning would be terrible in melee, but fantastic in range.
+
+MONSTER AI
+    Monsters should "sleep" until they are roused by the player.
+        > The monster will have an "awake" bool. If it is awake, it is added to the queue.
+        > Have a "sleeping entities" list that monsters are moved to and from
+    A greater variety of AI should be added.
+        > Herd AI, that wants to stick together
+        > Hunter AI that wants to stalk and kill
+            * Have a way of choosing a target
+        > Territorial AI that will attack, but not chase
+            * Spawn a map tile that is "home", and a radious around home is "territory". 
+        > Scavenger AI that will avoid contact, but be found near corpses or loot
+
+STEALTH/DISCOVERY
+    Have a chance of not seeing the monsters, despite them being there.
+
+COMPANION AI   
+    Create an AI for a monster that is your friend.
+        > Idle behavior is to stay within your radius (leash)
+        > Attack behavior is to kill things that are within its radius 
+        > Retreat behavior is to return to owner if hp is low or if distance is too great
+    Adapt Monster AI to also target companions
+
+COMPANION UI
+    Include some sort o UI panel for tracking companion hp and name. (And behavior?)
+        > It could be very few lines in the top left. The name, hp/max_hp printed over the health bar. 
+
+MONSTER SPAWNING
+    Reevaluate how monsters spawn. It might be too random now.
+        > Different monsters could have spawning behavior based on their AI
+            > Herd monsters spawn in herds, Hunters spawn alone, Territorial could vary per monster
+
+MONSTER IVS
+    Monsters should spawn with a variation to their stats.
+
+BIOMES
+    Extend biome feature
+        > Have a 2-axis system for deciding biomes.
+
+ENDGAME: 
+    Goal of the game is to find parts to spaceship in order to leave
+        > The propulsion mechanism needs to be found
+        > Fuel for the propulsion needs to be made
+            > Fuel will consist of materia from converted enemies.
+
+TARGETING CONTROLS
+    Have keyboard targeting controls
+
+LOOK 
+    Add a "look" command to replace mouse looking
+
+TOROIDAL MAP
+    The map should loop around the x- and y- axis. No borders, but not infinite.
+
+BREEDING/TERRAFORMING
+    Is this how to get super dense materia?
+    There is no male female, any entity can breed with any entity. How alien.
