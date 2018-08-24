@@ -1,6 +1,7 @@
 import tcod as libtcod
 
 from components.item import Item
+from components.inventory import Inventory
 
 
 def menu(con, header, options, width, screen_width, screen_height):
@@ -85,21 +86,11 @@ def materia_extraction_menu(con, header, inventory, menu_width, screen_width, sc
     if len(inventory.items) == 0:
         options = ['There are no materia containing items.']
     else:
-        options = []
-        for item in inventory.items:
-            if item.item.caught_entity.materia:
-                item_name = item.item.caught_entity.name.capitalize()
-                materia_name = item.item.caught_entity.materia[0]
-                materia_level = item.item.caught_entity.materia[1]
-                options.append(item_name + ' (' + materia_name + ' lvl' + str(materia_level) + ')')
-    
+        options = inventory.item_list_with_property('materia')
+        if len(options) == 0:
+            options = ['There are no materia containing items.']
+
     menu(con, header, options, menu_width, screen_width, screen_height)
-
-    ## Check to see if there are items that contain materia. 
-    #  If there are some, make a list containing them.
-    #  If not, set options = ['No items have extractable materia.']
-
-    ## Iterate through the new list. Fill the options = [] list with 'item.name + ( item.materia )'
 
 def main_menu(con, background_image, screen_width, screen_height):
     libtcod.image_blit_2x(background_image, 0, 0, 0)

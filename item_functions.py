@@ -101,3 +101,9 @@ def release(*args, **kwargs):
             item_entity.item.use_function = catch # The pokeball can now catch things.
 
     return results
+
+def materia(*args, **kwargs):
+    """
+    Placeholder function.
+    """
+    pass

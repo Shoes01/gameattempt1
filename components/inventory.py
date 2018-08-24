@@ -67,3 +67,17 @@ class Inventory:
                                                                  libtcod.yellow)})
 
         return results
+
+    def item_list_with_property(self, item_property):
+        """
+        Iterate over the items in the inventory and return a smaller list of items that have the desired property.
+        """
+        item_list = []
+
+        for item_entity in self.items:
+            # Check to see if Materia can be extracted from the item.
+            if item_property == 'materia':
+                if item_entity.item.caught_entity and item_entity.item.caught_entity.materia:
+                    item_list.append(item_entity)
+
+        return item_list
