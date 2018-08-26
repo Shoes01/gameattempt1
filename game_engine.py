@@ -143,6 +143,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         """
 
         List of possible actions taken by the player.
+        TODO: Cut things up via GameState more clearly.
 
         """
         move = action.get('move')
@@ -158,6 +159,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         show_extract_materia_menu = action.get('show_extract_materia_menu') # Prompt the player to extra materia from creature.
         extraction_index = action.get('extraction_index')                   # Select this entry from the extraction menu.
         look = action.get('look')                                           # Enter the LOOK GameState.
+        select = action.get('select')                                       # A target has been selected via keyboard.
 
         left_click = mouse_action.get('left_click')
         right_click = mouse_action.get('right_click')
@@ -230,16 +232,29 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 player_turn_results.extend(player.inventory.drop_item(item))
        
         if game_state == GameStates.TARGETING:
+            # Mouse targeting
             if left_click:
                 target_x, target_y = left_click
                 target_x += camera.x
                 target_y += camera.y
 
-                item_use_results = player.inventory.use(targeting_item, entities=entities, fov_map=fov_map,
-                                                        target_x=target_x, target_y=target_y)
+                item_use_results = player.inventory.use(targeting_item, entities=entities, fov_map=fov_map, target_x=target_x, target_y=target_y)
                 player_turn_results.extend(item_use_results)
             elif right_click:
                 player_turn_results.append({'targeting_cancelled': True})
+
+            # Keyboard targeting
+            if move:
+                # Move the cursor.
+                dx, dy = move
+                cursor.move(dx, dy, constants['camera_width'], constants['camera_height'], camera.x, camera.y)
+            
+            if select:
+                # Hit the chosen target.
+                target_x, target_y = cursor.x, cursor.y
+
+                item_use_results = player.inventory.use(targeting_item, entities=entities, fov_map=fov_map, target_x=target_x, target_y=target_y)
+                player_turn_results.extend(item_use_results)
         
         if exit:
             if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY, GameStates.CHARACTER_SCREEN, GameStates.MATERIA_SCREEN, GameStates.LOOK):
@@ -343,6 +358,8 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             if targeting:
                 previous_game_state = GameStates.PLAYERS_TURN
                 game_state = GameStates.TARGETING
+                
+                cursor.x, cursor.y = player.x, player.y
 
                 targeting_item = targeting
 

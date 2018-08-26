@@ -87,7 +87,7 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
             libtcod.console_put_char(con, entity.x - camera.x, entity.y - camera.y, entity.char, libtcod.BKGND_NONE) # TODO: Can the entity know it's screen position?
 
     # Draw the cursor, if there is one
-    if game_state == GameStates.LOOK:
+    if game_state in (GameStates.LOOK, GameStates.TARGETING):
         libtcod.console_set_default_foreground(con, cursor.color)
         libtcod.console_put_char(con, cursor.x - camera.x, cursor.y - camera.y, cursor.char, libtcod.BKGND_NONE)
 
@@ -113,7 +113,7 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
     libtcod.console_print_ex(panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT, get_names_under_mouse(entities, fov_map, camera.x, camera.y, mouse=mouse))
 
     # Print what is under the cursor
-    if game_state == GameStates.LOOK:
+    if game_state in (GameStates.LOOK, GameStates.TARGETING):
         libtcod.console_set_default_foreground(panel, libtcod.light_gray)
         libtcod.console_print_ex(panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT, get_names_under_mouse(entities, fov_map, camera.x, camera.y, cursor=cursor))
 
@@ -147,8 +147,9 @@ def clear_all(con, entities, camera_x, camera_y, cursor):
         clear_entity(con, entity, camera_x, camera_y)
     
     # Clear the cursor as well
+    # TODO: There will always be a cursor now that it is a class... send gamestate too? Use a clear_cursor definition?
     if cursor:
-        libtcod.console_put_char(con, cursor.x- camera_x, cursor.y - camera_y, ' ', libtcod.BKGND_NONE)
+        libtcod.console_put_char(con, cursor.x - camera_x, cursor.y - camera_y, ' ', libtcod.BKGND_NONE)
 
 def clear_entity(con, entity, camera_x, camera_y):
     # erase the character that represents this object
