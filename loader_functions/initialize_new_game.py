@@ -46,9 +46,6 @@ def get_constants():
     item_spawn_chance = 990
 
     colors = {
-        'dark_wall': libtcod.Color(0, 0, 100),
-        'dark_ground': libtcod.Color(50, 50, 150),
-
         # Vegetation biome colors.
         'dark_dirt': libtcod.darker_sepia,
         'light_dirt': libtcod.sepia,

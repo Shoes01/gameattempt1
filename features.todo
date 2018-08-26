@@ -143,6 +143,9 @@ BREEDING/TERRAFORMING
     Is this how to get super dense materia?
     There is no male female, any entity can breed with any entity. How alien.
 
+TERRAIN
+    Terrain shoudl also have tiles, like other classic roguelikes.
+
 COLOR CHOICE
     Tiles have their own colors decided ahead of time.
     Messages should have their colors decided too.
