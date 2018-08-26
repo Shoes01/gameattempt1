@@ -97,6 +97,9 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
     # Turn on camera.
     camera = Camera(constants['camera_width'], constants['camera_height'], player.x, player.y, constants['map_width'], constants['map_height'])
 
+    # Actviate cursor.
+    cursor = [0, 0]
+
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
 
@@ -108,14 +111,14 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log,
                     constants['screen_width'], constants['screen_height'], constants['bar_width'],
                     constants['panel_height'], constants['panel_y'], mouse, constants['colors'], game_state,
-                    camera)
+                    camera, cursor)
 
             fov_recompute = False
 
             libtcod.console_flush()
 
             # The console is cleared, but it will only be flushed on the player's turn. 
-            clear_all(con, entities, camera.x, camera.y)
+            clear_all(con, entities, camera.x, camera.y, cursor)
 
         action = handle_keys(key, game_state)
         mouse_action = handle_mouse(mouse)
@@ -153,6 +156,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         show_character_screen = action.get('show_character_screen')
         show_extract_materia_menu = action.get('show_extract_materia_menu') # Prompt the player to extra materia from creature.
         extraction_index = action.get('extraction_index')                   # Select this entry from the extraction menu.
+        look = action.get('look')                                           # Enter the LOOK GameState.
 
         left_click = mouse_action.get('left_click')
         right_click = mouse_action.get('right_click')
@@ -187,6 +191,14 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
                 priority_queue.put(player.fighter.speed, player.ID) # The player spends their turn to move/attack.
                 game_state = GameStates.ENEMY_TURN
+
+        elif move and game_state == GameStates.LOOK:
+            # Move the cursor.
+            dx, dy = move
+            cursor[0] = cursor[0] + dx
+            cursor[1] = cursor[1] + dy
+
+            # TODO: Add code to keep the cursor inside the camera
 
         elif wait and game_state == GameStates.PLAYERS_TURN:
             # Puts the player second in queue. 
@@ -233,8 +245,9 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 player_turn_results.append({'targeting_cancelled': True})
         
         if exit:
-            if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY, GameStates.CHARACTER_SCREEN, GameStates.MATERIA_SCREEN):
+            if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY, GameStates.CHARACTER_SCREEN, GameStates.MATERIA_SCREEN, GameStates.LOOK):
                 game_state = previous_game_state
+                cursor = [0, 0]
             elif game_state == GameStates.TARGETING:
                 player_turn_results.append({'targeting_cancelled': True})
             else:
@@ -287,6 +300,11 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 # TODO: There are now two instances of switching the pokeball from one function to another. Consider moving this inside the Item class.
                 extracting_item.item.swap_messages()
                 extracting_item.item.use_function = item_functions.catch
+        
+        if look:
+            previous_game_state = game_state
+            cursor = [player.x, player.y]
+            game_state = GameStates.LOOK
 
         """
 

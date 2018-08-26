@@ -10,8 +10,12 @@ class RenderOrder(Enum):
     ITEM = 2
     ACTOR = 3
 
-def get_names_under_mouse(mouse, entities, fov_map, camera_x, camera_y):
-    (x, y) = (mouse.cx + camera_x, mouse.cy + camera_y)
+def get_names_under_mouse(entities, fov_map, camera_x, camera_y, mouse=None, cursor=None):
+    
+    if mouse:
+        (x, y) = (mouse.cx + camera_x, mouse.cy + camera_y)
+    elif cursor:
+        (x, y) = (cursor[0], cursor[1])
 
     names = [entity.name for entity in entities
              if entity.x == x and entity.y == y and libtcod.map_is_in_fov(fov_map, entity.x, entity.y)]
@@ -34,7 +38,7 @@ def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_c
                              '{0}: {1}/{2}'.format(name, value, maximum))
 
 def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height,
-               bar_width, panel_height, panel_y, mouse, colors, game_state, camera):
+               bar_width, panel_height, panel_y, mouse, colors, game_state, camera, cursor):
    
     # Draw all the tiles in the game map
     if fov_recompute:
@@ -81,8 +85,14 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
             libtcod.console_set_default_foreground(con, entity.color)
             libtcod.console_put_char(con, entity.x - camera.x, entity.y - camera.y, entity.char, libtcod.BKGND_NONE) # TODO: Can the entity know it's screen position?
 
+    # Draw the cursor, if there is one
+    if game_state == GameStates.LOOK:
+        libtcod.console_set_default_foreground(con, libtcod.yellow)
+        libtcod.console_put_char(con, cursor[0] - camera.x, cursor[1] - camera.y, 'X', libtcod.BKGND_NONE)
+
     libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0)
 
+    # Prepare the panel console
     libtcod.console_set_default_background(panel, libtcod.black)
     libtcod.console_clear(panel)
 
@@ -93,13 +103,20 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
         libtcod.console_print_ex(panel, message_log.x, y, libtcod.BKGND_NONE, libtcod.LEFT, message.text)
         y += 1
 
+    # Print the HP bar
     render_bar(panel, 1, 1, bar_width, 'HP', player.fighter.hp, player.fighter.max_hp,
                libtcod.light_red, libtcod.darker_red)
 
+    # Print what is under the mouse
     libtcod.console_set_default_foreground(panel, libtcod.light_gray)
-    libtcod.console_print_ex(panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT,
-                             get_names_under_mouse(mouse, entities, fov_map, camera.x, camera.y))
+    libtcod.console_print_ex(panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT, get_names_under_mouse(entities, fov_map, camera.x, camera.y, mouse=mouse))
 
+    # Print what is under the cursor
+    if game_state == GameStates.LOOK:
+        libtcod.console_set_default_foreground(panel, libtcod.light_gray)
+        libtcod.console_print_ex(panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT, get_names_under_mouse(entities, fov_map, camera.x, camera.y, cursor=cursor))
+
+    # Finish panel console.
     libtcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, panel_y)
 
     # Show the Inventory menu
@@ -123,9 +140,14 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
     elif game_state == GameStates.MATERIA_SCREEN:
         materia_extraction_menu(con, 'Materia Extraction menu', player.inventory, 50, screen_width, screen_height)
 
-def clear_all(con, entities, camera_x, camera_y):
+def clear_all(con, entities, camera_x, camera_y, cursor):
+    # Clear all entities
     for entity in entities:
         clear_entity(con, entity, camera_x, camera_y)
+    
+    # Clear the cursor as well
+    if cursor:
+        libtcod.console_put_char(con, cursor[0] - camera_x, cursor[1] - camera_y, ' ', libtcod.BKGND_NONE)
 
 def clear_entity(con, entity, camera_x, camera_y):
     # erase the character that represents this object

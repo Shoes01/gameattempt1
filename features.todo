@@ -43,8 +43,6 @@ LOOK - KEYBOARD TARGETING
     Add key to choose target.
         * Look for entities with a fighter component. Choose that one.
 
-
-
 ########################### Primary game mechanic: combination
 #                         #     Gather monster essences
 #                         #     Combine essences for unique effects
