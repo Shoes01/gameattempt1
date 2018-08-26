@@ -195,7 +195,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         elif move and game_state == GameStates.LOOK:
             # Move the cursor.
             dx, dy = move
-            cursor.move(dx, dy)
+            cursor.move(dx, dy, constants['camera_width'], constants['camera_height'], camera.x, camera.y)
 
         elif wait and game_state == GameStates.PLAYERS_TURN:
             # Puts the player second in queue. 

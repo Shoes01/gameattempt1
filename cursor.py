@@ -1,3 +1,5 @@
+import tcod as libtcod
+
 class Cursor:
     """
     When the game is in the LOOK state, a yellow X apears and is moveable.
@@ -12,9 +14,15 @@ class Cursor:
         # Doesn't matter what the x,y start as, because the cursor always spawns on the player.
         self.x = -1
         self.y = -1
-        # TODO: Add char and color to the cursor class
+        self.char = 'X'
+        self.color = libtcod.yellow
 
-    def move(self, dx, dy):
+    def move(self, dx, dy, camera_width, camera_height, camera_x, camera_y):
         # TODO: Add relevant code to ensure the cursor doesn't leave the camera
         self.x += dx
         self.y += dy
+
+        if self.x > camera_width + camera_x - 1: self.x = camera_width + camera_x - 1
+        if self.y > camera_height + camera_y - 1: self.y = camera_height + camera_y - 1
+        if self.x < 0 + camera_x: self.x = 0 + camera_x
+        if self.y < 0 + camera_y: self.y = 0 + camera_y

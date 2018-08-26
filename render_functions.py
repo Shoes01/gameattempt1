@@ -88,8 +88,8 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
 
     # Draw the cursor, if there is one
     if game_state == GameStates.LOOK:
-        libtcod.console_set_default_foreground(con, libtcod.yellow)
-        libtcod.console_put_char(con, cursor.x - camera.x, cursor.y - camera.y, 'X', libtcod.BKGND_NONE)
+        libtcod.console_set_default_foreground(con, cursor.color)
+        libtcod.console_put_char(con, cursor.x - camera.x, cursor.y - camera.y, cursor.char, libtcod.BKGND_NONE)
 
     libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0)
 
