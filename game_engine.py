@@ -6,6 +6,7 @@ import item_functions # Done here to avoid shared name problems
 from components.ai import BasicMonster
 from components.inventory import Inventory
 from components.item import Item
+from cursor import Cursor
 from death_functions import kill_monster, kill_player
 from entity import Entity, get_blocking_entities_at_location
 from fov_functions import initialize_fov, recompute_fov
@@ -98,7 +99,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
     camera = Camera(constants['camera_width'], constants['camera_height'], player.x, player.y, constants['map_width'], constants['map_height'])
 
     # Actviate cursor.
-    cursor = [0, 0]
+    cursor = Cursor()
 
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
@@ -163,7 +164,6 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
         player_turn_results = []
 
-        # TODO: Put all of these behind a "if game_state == GameStates.PLAYERS_TURN" loop.
         if move and game_state == GameStates.PLAYERS_TURN:
             # TODO: Prevent player from moving outside the map.
             dx, dy = move
@@ -195,10 +195,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         elif move and game_state == GameStates.LOOK:
             # Move the cursor.
             dx, dy = move
-            cursor[0] = cursor[0] + dx
-            cursor[1] = cursor[1] + dy
-
-            # TODO: Add code to keep the cursor inside the camera
+            cursor.move(dx, dy)
 
         elif wait and game_state == GameStates.PLAYERS_TURN:
             # Puts the player second in queue. 
@@ -247,7 +244,6 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         if exit:
             if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY, GameStates.CHARACTER_SCREEN, GameStates.MATERIA_SCREEN, GameStates.LOOK):
                 game_state = previous_game_state
-                cursor = [0, 0]
             elif game_state == GameStates.TARGETING:
                 player_turn_results.append({'targeting_cancelled': True})
             else:
@@ -303,7 +299,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         
         if look:
             previous_game_state = game_state
-            cursor = [player.x, player.y]
+            cursor.x, cursor.y = player.x, player.y
             game_state = GameStates.LOOK
 
         """

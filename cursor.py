@@ -8,9 +8,11 @@ class Cursor:
     Maybe this isn't necessary?
 
     """
-    __init__(self, x, y):
-        self.x = x
-        self.y = y
+    def __init__(self):
+        # Doesn't matter what the x,y start as, because the cursor always spawns on the player.
+        self.x = -1
+        self.y = -1
+        # TODO: Add char and color to the cursor class
 
     def move(self, dx, dy):
         # TODO: Add relevant code to ensure the cursor doesn't leave the camera

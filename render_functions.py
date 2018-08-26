@@ -1,5 +1,6 @@
 import tcod as libtcod
 
+#from cursor import Cursor
 from enum import Enum
 from game_states import GameStates
 from menus import character_screen, inventory_menu, level_up_menu, materia_extraction_menu
@@ -15,7 +16,7 @@ def get_names_under_mouse(entities, fov_map, camera_x, camera_y, mouse=None, cur
     if mouse:
         (x, y) = (mouse.cx + camera_x, mouse.cy + camera_y)
     elif cursor:
-        (x, y) = (cursor[0], cursor[1])
+        (x, y) = (cursor.x, cursor.y)
 
     names = [entity.name for entity in entities
              if entity.x == x and entity.y == y and libtcod.map_is_in_fov(fov_map, entity.x, entity.y)]
@@ -88,7 +89,7 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
     # Draw the cursor, if there is one
     if game_state == GameStates.LOOK:
         libtcod.console_set_default_foreground(con, libtcod.yellow)
-        libtcod.console_put_char(con, cursor[0] - camera.x, cursor[1] - camera.y, 'X', libtcod.BKGND_NONE)
+        libtcod.console_put_char(con, cursor.x - camera.x, cursor.y - camera.y, 'X', libtcod.BKGND_NONE)
 
     libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0)
 
@@ -147,7 +148,7 @@ def clear_all(con, entities, camera_x, camera_y, cursor):
     
     # Clear the cursor as well
     if cursor:
-        libtcod.console_put_char(con, cursor[0] - camera_x, cursor[1] - camera_y, ' ', libtcod.BKGND_NONE)
+        libtcod.console_put_char(con, cursor.x- camera_x, cursor.y - camera_y, ' ', libtcod.BKGND_NONE)
 
 def clear_entity(con, entity, camera_x, camera_y):
     # erase the character that represents this object
