@@ -106,4 +106,13 @@ def materia(*args, **kwargs):
     """
     Placeholder function.
     """
-    pass
+    owner_entity = args[0]
+
+    materia_type = kwargs.get('type')
+    materia_level = kwargs.get('level')
+    
+    results = []
+
+    results.append({'message': Message('{0} looks at their {1} Materia. It is level {2}.'.format(owner_entity.name.capitalize(), materia_type.capitalize(), str(materia_level)), libtcod.yellow)})
+
+    return results

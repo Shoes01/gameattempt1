@@ -82,12 +82,15 @@ def character_screen(player, character_screen_width, character_screen_height, sc
 
 def materia_extraction_menu(con, header, inventory, menu_width, screen_width, screen_height):
     # Show a menu of all the items from which Materia can be extracted.
-    
+    options = []
+
     if len(inventory.items) == 0:
         options = ['There are no materia containing items.']
     else:
-        options = inventory.item_list_with_property('materia')
-        if len(options) == 0:
+        item_list = inventory.item_list_with_property('materia')
+        for item in item_list:
+            options.append(item.item.caught_entity.materia[0].capitalize() + ' Materia (lvl ' + str(item.item.caught_entity.materia[1]) + ')')
+        if len(item_list) == 0:
             options = ['There are no materia containing items.']
 
     menu(con, header, options, menu_width, screen_width, screen_height)

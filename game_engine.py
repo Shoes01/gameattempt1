@@ -1,6 +1,8 @@
 import tcod as libtcod
 import cProfile             # Debug import
 
+import item_functions # Done here to avoid shared name problems
+
 from components.ai import BasicMonster
 from components.inventory import Inventory
 from components.item import Item
@@ -10,7 +12,6 @@ from fov_functions import initialize_fov, recompute_fov
 from game_messages import Message
 from game_states import GameStates
 from input_handlers import handle_keys, handle_mouse, handle_main_menu
-from item_functions import materia
 from loader_functions.initialize_new_game import get_constants, get_game_variables
 from loader_functions.data_loaders import load_game, save_game
 from map_objects.camera import Camera
@@ -219,7 +220,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             elif game_state == GameStates.DROP_INVENTORY:
                 player_turn_results.extend(player.inventory.drop_item(item))
        
-        if game_state == GameStates.TARGETING and game_state == GameStates.PLAYERS_TURN:
+        if game_state == GameStates.TARGETING:
             if left_click:
                 target_x, target_y = left_click
                 target_x += camera.x
@@ -262,18 +263,18 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             previous_game_state = game_state
             game_state = GameStates.MATERIA_SCREEN
 
-        if extraction_index is not None and previous_game_state != GameStates.PLAYER_DEAD: 
+        if extraction_index is not None and previous_game_state != GameStates.PLAYER_DEAD:
             # Create the list of items that have materia
             item_list = player.inventory.item_list_with_property('materia')
             # Check to see the index is inside this list
             if extraction_index < len(item_list):
                 # Create an item called "type Materia (lvl n)"
-                extracting_item = item_list[extraction_index] # This is the pokeball.
+                extracting_item = item_list[extraction_index] # This is the pokeball entity.
                 materia_type = extracting_item.item.caught_entity.materia[0]
                 materia_level = extracting_item.item.caught_entity.materia[1]
-                materia_name = materia_type.capitalize() + 'Materia (lvl ' + str(materia_level)
+                materia_name = materia_type.capitalize() + ' Materia (lvl ' + str(materia_level) + ')'
                 
-                item_component = Item(use_function=materia, type=materia_type, level=materia_level)
+                item_component = Item(use_function=item_functions.materia, type=materia_type, level=materia_level)
                 materia_item = Entity(0, 0, '*', libtcod.white, materia_name, global_variables.get_new_ID(), RenderOrder.ITEM, item=item_component)
 
                 # Add it to the inventory
@@ -281,7 +282,11 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 entities.append(materia_item)
 
                 # Remove the entity from which it came from the parent entity holding it
-                extracting_item.caught_entity = None
+                extracting_item.item.caught_entity = None
+                # Return the pokeball to a "catch" mode instead of release.
+                # TODO: There are now two instances of switching the pokeball from one function to another. Consider moving this inside the Item class.
+                extracting_item.item.swap_messages()
+                extracting_item.item.use_function = item_functions.catch
 
         """
 
