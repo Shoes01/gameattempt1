@@ -124,12 +124,13 @@ def handle_targeting_keys(key):
         return {'move': (1, 1)}
     elif key_char == '.' or key.vk == libtcod.KEY_KP5:
         return {'wait': True}
-    if key.vk == libtcod.KEY_ESCAPE:
-        return {'exit': True}
-    
+
     if key.vk == libtcod.KEY_ENTER or key.vk == libtcod.KEY_KPENTER:
         return {'select': True}
 
+    if key.vk == libtcod.KEY_ESCAPE:
+        return {'exit': True}
+    
     return {}
 
 def handle_inventory_keys(key):

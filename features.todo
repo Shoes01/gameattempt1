@@ -25,23 +25,8 @@ DESIGN FLAW?
 ############################
 
 LOOK - KEYBOARD TARGETING
-    The Keyboard targeting will reuse code from the "Look" function.
-    
-    When the user enters the "look" gamestate, a yellow flashing X cursor will appear on the player. 
-        * Need the Cursor class
-        * Need a way to measure time so that the flashing is reasonable
-    Using the regular movement controls will also move the cursor.
-        * Need to creature a new input_handlers definition
-        * Should move the 8-directional movement code from player turn state to its own function, so that the look state can use it
-    The names of entities below the cursor will always be visible.
-        * The same way the mouse look works
-    
-    Change targeting via mouse to targeting via keyboard.
-        * I think the items will need to have their messages changed
-    Add keys to snap to possible targets. Tab and Shift+Tab could be the keys.
-        * Decide on a heuristic for choosing targets. Start at top left, move left to right, top to bottom?
-    Add key to choose target.
-        * Look for entities with a fighter component. Choose that one.
+    Move duplicate code in input_handlers
+    Add a way to snap to other targets?
 
 ########################### Primary game mechanic: combination
 #                         #     Gather monster essences
