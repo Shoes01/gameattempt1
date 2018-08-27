@@ -36,7 +36,7 @@ def handle_mouse(mouse):
 
     return {}
 
-def handle_player_turn_keys(key):
+def generic_movement(key):
     key_char = chr(key.c)
 
     if key.vk == libtcod.KEY_UP or key_char == 'k' or key.vk == libtcod.KEY_KP8:
@@ -57,35 +57,44 @@ def handle_player_turn_keys(key):
         return {'move': (1, 1)}
     elif key_char == '.' or key.vk == libtcod.KEY_KP5:
         return {'wait': True}
+    
+    return {}
+
+def handle_player_turn_keys(key):
+    key_char = chr(key.c)
+
+    result = {}
+
+    result = generic_movement(key)
 
     if key_char == 'g':
-        return {'pickup': True}
+        result =  {'pickup': True}
 
     elif key_char == 'i':
-        return {'show_inventory': True}
+        result =  {'show_inventory': True}
 
     elif key_char == 'd':
-        return {'drop_inventory': True}
+        result =  {'drop_inventory': True}
 
     elif key_char == 'c':
-        return {'show_character_screen': True}
+        result =  {'show_character_screen': True}
 
     elif key_char == 'm':
-        return {'show_extract_materia_menu': True}
+        result =  {'show_extract_materia_menu': True}
 
     elif key_char == 'x':
-        return {'look': True}
+        result =  {'look': True}
 
     if key.vk == libtcod.KEY_ENTER and key.lalt:
         # Alt+Enter: toggle full screen
-        return {'fullscreen': True}
+        result =  {'fullscreen': True}
 
     elif key.vk == libtcod.KEY_ESCAPE:
         # Exit the game
-        return {'exit': True}
+        result =  {'exit': True}
 
     # No key was pressed
-    return {}
+    return result
 
 def handle_player_dead_keys(key):
     key_char = chr(key.c)
@@ -104,34 +113,17 @@ def handle_player_dead_keys(key):
     return {}
 
 def handle_targeting_keys(key):
-    key_char = chr(key.c)
+    result = {}
 
-    if key.vk == libtcod.KEY_UP or key_char == 'k' or key.vk == libtcod.KEY_KP8:
-        return {'move': (0, -1)}
-    elif key.vk == libtcod.KEY_DOWN or key_char == 'j' or key.vk == libtcod.KEY_KP2:
-        return {'move': (0, 1)}
-    elif key.vk == libtcod.KEY_LEFT or key_char == 'h' or key.vk == libtcod.KEY_KP4:
-        return {'move': (-1, 0)}
-    elif key.vk == libtcod.KEY_RIGHT or key_char == 'l' or key.vk == libtcod.KEY_KP6:
-        return {'move': (1, 0)}
-    elif key_char == 'y' or key.vk == libtcod.KEY_KP7:
-        return {'move': (-1, -1)}
-    elif key_char == 'u' or key.vk == libtcod.KEY_KP9:
-        return {'move': (1, -1)}
-    elif key_char == 'b' or key.vk == libtcod.KEY_KP1:
-        return {'move': (-1, 1)}
-    elif key_char == 'n' or key.vk == libtcod.KEY_KP3:
-        return {'move': (1, 1)}
-    elif key_char == '.' or key.vk == libtcod.KEY_KP5:
-        return {'wait': True}
+    result = generic_movement(key)
 
     if key.vk == libtcod.KEY_ENTER or key.vk == libtcod.KEY_KPENTER:
-        return {'select': True}
+        result = {'select': True}
 
     if key.vk == libtcod.KEY_ESCAPE:
-        return {'exit': True}
+        result = {'exit': True}
     
-    return {}
+    return result
 
 def handle_inventory_keys(key):
     index = key.c - ord('a')
@@ -190,28 +182,11 @@ def handle_materia_extration_menu(key):
     return {}
 
 def handle_look(key):
-    key_char = chr(key.c)
+    result = {}
 
-    if key.vk == libtcod.KEY_UP or key_char == 'k' or key.vk == libtcod.KEY_KP8:
-        return {'move': (0, -1)}
-    elif key.vk == libtcod.KEY_DOWN or key_char == 'j' or key.vk == libtcod.KEY_KP2:
-        return {'move': (0, 1)}
-    elif key.vk == libtcod.KEY_LEFT or key_char == 'h' or key.vk == libtcod.KEY_KP4:
-        return {'move': (-1, 0)}
-    elif key.vk == libtcod.KEY_RIGHT or key_char == 'l' or key.vk == libtcod.KEY_KP6:
-        return {'move': (1, 0)}
-    elif key_char == 'y' or key.vk == libtcod.KEY_KP7:
-        return {'move': (-1, -1)}
-    elif key_char == 'u' or key.vk == libtcod.KEY_KP9:
-        return {'move': (1, -1)}
-    elif key_char == 'b' or key.vk == libtcod.KEY_KP1:
-        return {'move': (-1, 1)}
-    elif key_char == 'n' or key.vk == libtcod.KEY_KP3:
-        return {'move': (1, 1)}
-    elif key_char == '.' or key.vk == libtcod.KEY_KP5:
-        return {'wait': True}
+    result = generic_movement(key)
     
     if key.vk == libtcod.KEY_ESCAPE:
-        return {'exit': True}
+        result = {'exit': True}
 
-    return {}
+    return result
