@@ -268,7 +268,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         if fullscreen:
             libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
 
-        if level_up and game_state == GameStates.PLAYERS_TURN:
+        if level_up:
             if level_up == 'hp':
                 player.fighter.max_hp += 20
                 player.fighter.hp += 20

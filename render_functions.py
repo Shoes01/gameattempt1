@@ -70,6 +70,7 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
                         libtcod.console_put_char_ex(con, console_x, console_y, '?', libtcod.dark_blue, libtcod.black)
                     else:
                         libtcod.console_set_char_background(con, console_x, console_y, colors.get(dark_color_name), libtcod.BKGND_SET)
+                
                 # I can neither see it, nor has it been explored. Color it black.
                 elif not visible and not game_map.tiles[x][y].explored:
                     if tile_type == 'nothing':

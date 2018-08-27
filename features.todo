@@ -25,7 +25,6 @@ DESIGN FLAW?
 ############################
 
 LOOK - KEYBOARD TARGETING
-    Move duplicate code in input_handlers
     Add a way to snap to other targets?
 
 ########################### Primary game mechanic: combination
@@ -35,6 +34,36 @@ LOOK - KEYBOARD TARGETING
 #                         # Goal: Repair ship using essence to leave planet.
 #                         # Secret Goal : Merge all essence types into one, single essence. Then merge self with it. Ascend to Godhood.    
 ########################### Lore: Something caused the omni-essence to split.
+
+BIOMES
+    Fire-Water-Earth-Wind biome
+
+    Use two noise layers, one for Fire-Water, one for Earth-Wind. Middle is "normal" with generic materia.
+    Fire: Volcanic Wastes
+        Has very few sight-blocking props
+        Has some impassable terrain (open gorges) 
+    Fire-Earth: Bursting Magmatic Activity
+        Has magma bursting through the terrain.
+        Still has some standing trees.
+    Earth: Lush Forests
+        Has many trees and bushes.
+    Earth-Water: Rain Forests
+        Tiles: 
+        Has huge trees, but not much else
+    Water: Tropical Shallows
+        Tiles: Water, Sand, Mangroves
+        Mostly covered in passable shallow water.
+        Has low bushes taking up most up large amounts of space
+    Water-Wind: Marshes
+        Tiles: Cat Tail, Standing Water, Mud
+        Has a lot of cat tails and such.
+    Wind: Expansive Grasslands
+        Tiles: Tall Grass, ???
+        Has almost no sight blockers.
+    Fire-Wind: Barren Desert
+        Tiles: Sand, Cactus
+        Has almost no sight blockers.
+        
 
 HIDDEN EFFECTS
     Roguelikes are built on random.
@@ -104,10 +133,6 @@ MONSTER SPAWNING
 
 MONSTER IVS
     Monsters should spawn with a variation to their stats.
-
-BIOMES
-    Extend biome feature
-        > Have a 2-axis system for deciding biomes.
 
 ENDGAME: 
     Goal of the game is to find parts to spaceship in order to leave

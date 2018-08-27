@@ -57,7 +57,35 @@ def get_constants():
         'light_tall_grass': libtcod.chartreuse,
 
         'dark_shrub': libtcod.darkest_lime,
-        'light_shrub': libtcod.dark_lime
+        'light_shrub': libtcod.dark_lime,
+
+        # Fire-Water-Earth-Wind biome colors.
+        "dark_fire": libtcod.darkest_red,
+        "light_fire": libtcod.darker_red,
+
+        "dark_water": libtcod.darker_cyan,
+        "light_water": libtcod.dark_cyan,
+
+        "dark_earth": libtcod.dark_chartreuse,
+        "light_earth": libtcod.chartreuse,
+
+        "dark_wind": libtcod.darker_yellow,
+        "light_wind": libtcod.dark_yellow,
+
+        "dark_fire_earth": libtcod.darker_orange,
+        "light_fire_earth": libtcod.dark_orange,
+
+        "dark_fire_wind": libtcod.dark_sepia,
+        "light_fire_wind": libtcod.sepia,
+
+        "dark_water_earth": libtcod.darkest_green,
+        "light_water_earth": libtcod.darker_green,
+
+        "dark_water_wind": libtcod.darkest_turquoise,
+        "light_water_wind": libtcod.darker_turquoise,
+
+        "dark_normal": libtcod.dark_lime,
+        "light_normal": libtcod.lime
     }
 
     # Generate seeds used for world gen.

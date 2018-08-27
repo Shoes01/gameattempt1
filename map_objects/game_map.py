@@ -47,32 +47,35 @@ class GameMap:
                 item_chance = randint(0, 1000)
                 if monster_chance > monster_spawn_chance:
                     #a monster spawns here!
-                    if self.tiles[x][y].tile_type == 'dirt':
+                    if self.tiles[x][y].tile_type == 'fire':
                         fighter_component = Fighter(hp=3, defense=3, power=1, speed=100, xp=35)
                         ai_component = BasicMonster()
                         materia = ('rock', 1)
                         monster = Entity(x, y, 'g', libtcod.light_grey, 'Geodude', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component, materia=materia)
                         priority_queue.put(action_points=monster.fighter.speed, ID=monster.ID)
-                    elif self.tiles[x][y].tile_type == 'grass':
+                    elif self.tiles[x][y].tile_type == 'wind':
                         fighter_component = Fighter(hp=1, defense=0, power=2, speed=80, xp=10)
                         ai_component = BasicMonster()
                         materia = ('poison', 1)
                         monster = Entity(x, y, 'b', libtcod.yellow, 'Beedrill', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component, materia=materia)
                         priority_queue.put(action_points=monster.fighter.speed, ID=monster.ID)
-                    elif self.tiles[x][y].tile_type == 'tall_grass':
+                    elif self.tiles[x][y].tile_type == 'earth':
                         fighter_component = Fighter(hp=2, defense=2, power=2, speed=200, xp=20)
                         ai_component = BasicMonster()
                         materia = ('life', 1)
                         monster = Entity(x, y, 'b', libtcod.darker_sea, 'Bulbasaur', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component, materia=materia)
                         priority_queue.put(action_points=monster.fighter.speed, ID=monster.ID)
-                    elif self.tiles[x][y].tile_type == 'shrub':
+                    elif self.tiles[x][y].tile_type == 'water':
                         fighter_component = Fighter(hp=2, defense=1, power=1, speed=300, xp=15)
                         ai_component = BasicMonster()
                         materia = ('poison', 2)
                         monster = Entity(x, y, 'o', libtcod.darker_azure, 'Oddish', global_variables.get_new_ID(), blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component, materia=materia)
                         priority_queue.put(action_points=monster.fighter.speed, ID=monster.ID)
                     
-                    entities.append(monster)
+                    else: monster = None
+                    
+                    if monster:
+                        entities.append(monster)
                     
                 if item_chance > item_spawn_chance:
                     #an item spawns here!

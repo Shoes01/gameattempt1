@@ -37,24 +37,29 @@ class World:
     def get_biome_at_xy(self, x, y):
         """
         Given the noise level of an (x, y) coordinate of a noise layer, the biome is returned.
-        Biome layer 0 will represent vegetation.
+        Biome layer 0 will represent the Fire-Water axis.
+        Biome layer 1 will represent the Earth-Wind axis.
 
-        Combine many biome layers to decide the final biome. 
-        For example, vegetation + danger would give "scary forests" or "benign fields".
+        Combine many biome layers to decide the final biome.
 
-        For testing, there is only one biome layer with a single biome.
-
-        TODO: use more than one noise layer to generate many flavors of biome.
+        TODO: Fill out biomes more.
         """
-        noise_level = self.layers[0][x][y]
+        fire_water_axis = self.layers[0][x][y]
+        earth_wind_axis = self.layers[1][x][y]
 
-        if noise_level < 0.2:
-            return 'dirt'
-        elif noise_level < 0.6:
-            return 'grass'
-        elif noise_level < 0.8:
-            return 'tall_grass'
+        if fire_water_axis < 0.33:
+            if earth_wind_axis < 0.33: return "fire_earth"
+            elif earth_wind_axis < 0.66: return "fire"
+            else: return "fire_wind"
+        
+        elif fire_water_axis < 0.66:
+            if earth_wind_axis < 0.33: return "earth"
+            elif earth_wind_axis < 0.66: return "normal"
+            else: return "wind"
+
         else:
-            return 'shrub'
+            if earth_wind_axis < 0.33: return "water_earth"
+            elif earth_wind_axis < 0.66: return "water"
+            else: return "water_wind"
 
         return 'nothing' # For when things get more complicated...
